@@ -1190,31 +1190,90 @@ const MONTHS_FR = {
 };
 
 function parseVoice(text) {
-  const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  let year = null, month = null, day = 1;
+  // Version normalisée sans accents pour les regex
+  const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  const m1 = t.match(/(\d{1,2})?\s*(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/);
-  if (m1) { day = m1[1] ? parseInt(m1[1]) : 1; month = MONTHS_FR[m1[2]]; year = parseInt(m1[3]); }
+  let year = null, month = null, day = 1;
+  let dateStartIndex = -1; // position dans t où commence la partie "date"
+
+  // ── Mots-clés qui séparent le nom de la date ──
+  // On cherche d'abord un mot-clé séparateur + date
+  const separators = [
+    'date de peremption',
+    'date de peremptiom', // faute courante
+    'peremption',
+    'expire le',
+    'expire en',
+    'expire',
+    'perime le',
+    'perime en',
+    'perime',
+    'jusqu\'au',
+    'jusqu au',
+  ];
+
+  let sepIndex = -1;
+  let sepLength = 0;
+  for (const sep of separators) {
+    const idx = t.indexOf(sep);
+    if (idx > 1) { sepIndex = idx; sepLength = sep.length; break; }
+  }
+
+  // ── Extraction de la date ──
+  // Pattern 1 : "15 mars 2026" ou "mars 2026"
+  const reMonthYear = /(\d{1,2}\s+)?(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/;
+  // Pattern 2 : "03/2026" ou "03-2026"
+  const reSlash = /(\d{1,2})[\/\-](\d{4})/;
+
+  // On cherche la date dans la partie après le séparateur si trouvé,
+  // sinon dans tout le texte
+  const searchZone = sepIndex >= 0 ? t.slice(sepIndex) : t;
+  const searchZoneOffset = sepIndex >= 0 ? sepIndex : 0;
+
+  const m1 = searchZone.match(reMonthYear);
+  if (m1) {
+    day   = m1[1] ? parseInt(m1[1]) : 1;
+    month = MONTHS_FR[m1[2]];
+    year  = parseInt(m1[3]);
+    // Position dans t de ce match
+    dateStartIndex = searchZoneOffset + searchZone.indexOf(m1[0]);
+  }
 
   if (!month) {
-    const m2 = t.match(/(\d{1,2})[\/\-](\d{4})/);
-    if (m2) { month = parseInt(m2[1]); year = parseInt(m2[2]); }
+    const m2 = searchZone.match(reSlash);
+    if (m2) {
+      month = parseInt(m2[1]);
+      year  = parseInt(m2[2]);
+      dateStartIndex = searchZoneOffset + searchZone.indexOf(m2[0]);
+    }
   }
 
-  let name = text;
-  for (const kw of ['péremption','peremption','expire','périme','perime','date de']) {
-    const idx = name.toLowerCase().indexOf(kw);
-    if (idx > 2) { name = name.substring(0, idx).trim(); break; }
+  // ── Extraction du nom ──
+  // Le nom = tout ce qui est AVANT le séparateur (si trouvé)
+  // ou AVANT le début de la date (si pas de séparateur)
+  let cutAt = -1;
+  if (sepIndex >= 0) {
+    cutAt = sepIndex;
+  } else if (dateStartIndex >= 0) {
+    cutAt = dateStartIndex;
   }
-  name = name.replace(/\s+/g,' ').trim();
+
+  let name = cutAt > 0 ? text.slice(0, cutAt) : text;
+
+  // Nettoyer les résidus en fin de nom ("le", "en", "du", ponctuation…)
+  name = name.replace(/\s+(le|la|les|du|de|en|au|pour|avec|et)\s*$/i, '');
+  name = name.replace(/[,;:\-]+$/, '').replace(/\s+/g, ' ').trim();
   if (name) name = name.charAt(0).toUpperCase() + name.slice(1);
+
+  // Mettre à jour les champs
   if (name) document.getElementById('medName').value = name;
 
   if (year && month) {
-    document.getElementById('medDate').value = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    toast(`🎤 ${name} — ${String(month).padStart(2,'0')}/${year}`);
+    const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    document.getElementById('medDate').value = dateStr;
+    toast(`🎤 "${name}" — ${String(month).padStart(2,'0')}/${year}`);
   } else if (name) {
-    toast(`🎤 Nom : ${name} — Vérifiez la date`);
+    toast(`🎤 Nom : "${name}" — Vérifiez la date`);
   }
 }
 
