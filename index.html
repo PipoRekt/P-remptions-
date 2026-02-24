@@ -34,6 +34,10 @@
     --sds-light: #ecdff7;
     --reserve: #2d6a4f;
     --reserve-light: #d8ead2;
+    --stups: #8f3a3a;
+    --stups-light: #f7dfdf;
+    --malledc: #7a5a1a;
+    --malledc-light: #f7f0dd;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,6 +90,8 @@
   .lieu-VSS      { background: var(--vss-light); color: var(--vss); }
   .lieu-SDS      { background: var(--sds-light); color: var(--sds); }
   .lieu-Reserve  { background: var(--reserve-light); color: var(--reserve); }
+  .lieu-Stups    { background: var(--stups-light); color: var(--stups); }
+  .lieu-MalleDC  { background: var(--malledc-light); color: var(--malledc); }
 
   /* ── ENCART AJOUT ── */
   .add-card {
@@ -214,6 +220,8 @@
   .lieu-tab.active-VSS     { background: var(--vss); border-color: var(--vss); color: white; }
   .lieu-tab.active-SDS     { background: var(--sds); border-color: var(--sds); color: white; }
   .lieu-tab.active-Reserve { background: var(--reserve); border-color: var(--reserve); color: white; }
+  .lieu-tab.active-Stups   { background: var(--stups); border-color: var(--stups); color: white; }
+  .lieu-tab.active-MalleDC { background: var(--malledc); border-color: var(--malledc); color: white; }
   .lieu-tab.active-all     { background: var(--ink); border-color: var(--ink); color: white; }
 
   .lieu-tab .count {
@@ -281,6 +289,8 @@
   .dot-VSS     { background: var(--vss); }
   .dot-SDS     { background: var(--sds); }
   .dot-Reserve { background: var(--reserve); }
+  .dot-Stups   { background: var(--stups); }
+  .dot-MalleDC { background: var(--malledc); }
 
   .summary-card-stats {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -654,6 +664,8 @@
             <option value="Reserve">Réserve</option>
             <option value="VSS">VSS</option>
             <option value="SDS">SDS</option>
+            <option value="Stups">Stups</option>
+            <option value="MalleDC">Malle DC</option>
           </select>
         </div>
         <button class="btn btn-primary" onclick="addMed()">+ Ajouter</button>
@@ -703,7 +715,7 @@
   <!-- Filtre lieu -->
   <div class="lieu-tabs" id="lieuTabs">
     <button class="lieu-tab active-all" onclick="setLieuFilter('all', this)">
-      Tous les lieux <span class="count" id="count-all">0</span>
+      Tous <span class="count" id="count-all">0</span>
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('VSS', this)">
       VSS <span class="count" id="count-VSS">0</span>
@@ -713,6 +725,12 @@
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('Reserve', this)">
       Réserve <span class="count" id="count-Reserve">0</span>
+    </button>
+    <button class="lieu-tab" onclick="setLieuFilter('Stups', this)">
+      Stups <span class="count" id="count-Stups">0</span>
+    </button>
+    <button class="lieu-tab" onclick="setLieuFilter('MalleDC', this)">
+      Malle DC <span class="count" id="count-MalleDC">0</span>
     </button>
   </div>
 
@@ -761,10 +779,12 @@
 
   <!-- Filtre lieu dans vue mois aussi -->
   <div class="lieu-tabs" id="lieuTabsMonth">
-    <button class="lieu-tab active-all" onclick="setLieuFilterMonth('all', this)">Tous les lieux</button>
+    <button class="lieu-tab active-all" onclick="setLieuFilterMonth('all', this)">Tous</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('VSS', this)">VSS</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('SDS', this)">SDS</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('Stups', this)">Stups</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('MalleDC', this)">Malle DC</button>
   </div>
 
   <div class="month-actions">
@@ -786,6 +806,8 @@
         <select id="transferDest">
           <option value="VSS">VSS</option>
           <option value="SDS">SDS</option>
+          <option value="Stups">Stups</option>
+          <option value="MalleDC">Malle DC</option>
         </select>
       </div>
       <div>
@@ -845,8 +867,8 @@ let lieuFilterMonth   = 'all';
 let currentMonth      = new Date();
 let transferMedId     = null;
 
-const LIEUX = ['VSS', 'SDS', 'Reserve'];
-const LIEU_LABELS = { VSS: 'VSS', SDS: 'SDS', Reserve: 'Réserve' };
+const LIEUX = ['VSS', 'SDS', 'Reserve', 'Stups', 'MalleDC'];
+const LIEU_LABELS = { VSS: 'VSS', SDS: 'SDS', Reserve: 'Réserve', Stups: 'Stups', MalleDC: 'Malle DC' };
 
 // ─────────────────────────────
 // TABS
