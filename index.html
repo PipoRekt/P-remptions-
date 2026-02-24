@@ -38,6 +38,8 @@
     --stups-light: #f7dfdf;
     --malledc: #7a5a1a;
     --malledc-light: #f7f0dd;
+    --vaccin: #1a6b7a;
+    --vaccin-light: #d8f0f4;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -92,6 +94,7 @@
   .lieu-Reserve  { background: var(--reserve-light); color: var(--reserve); }
   .lieu-Stups    { background: var(--stups-light); color: var(--stups); }
   .lieu-MalleDC  { background: var(--malledc-light); color: var(--malledc); }
+  .lieu-Vaccin   { background: var(--vaccin-light); color: var(--vaccin); }
 
   /* ── ENCART AJOUT ── */
   .add-card {
@@ -121,6 +124,26 @@
   .voice-btn:hover { transform: scale(1.05); }
   .voice-btn.recording { background: var(--danger); animation: pulse 1s infinite; }
   .voice-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .chain-btn {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface);
+    color: var(--muted); font-size: 1.4rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+    font-family: 'DM Sans', sans-serif; font-weight: 600;
+  }
+  .chain-btn:hover { border-color: var(--warn); color: var(--warn); }
+  .chain-btn.chain-active {
+    background: var(--warn); border-color: var(--warn);
+    color: white; animation: pulse-chain 1.5s infinite;
+    box-shadow: 0 4px 16px rgba(181,84,26,0.4);
+  }
+
+  @keyframes pulse-chain {
+    0%,100% { box-shadow: 0 4px 16px rgba(181,84,26,0.3); }
+    50%      { box-shadow: 0 4px 28px rgba(181,84,26,0.6); }
+  }
 
   @keyframes pulse {
     0%,100% { box-shadow: 0 4px 20px rgba(139,26,26,0.4); }
@@ -222,6 +245,7 @@
   .lieu-tab.active-Reserve { background: var(--reserve); border-color: var(--reserve); color: white; }
   .lieu-tab.active-Stups   { background: var(--stups); border-color: var(--stups); color: white; }
   .lieu-tab.active-MalleDC { background: var(--malledc); border-color: var(--malledc); color: white; }
+  .lieu-tab.active-Vaccin  { background: var(--vaccin); border-color: var(--vaccin); color: white; }
   .lieu-tab.active-all     { background: var(--ink); border-color: var(--ink); color: white; }
 
   .lieu-tab .count {
@@ -291,6 +315,7 @@
   .dot-Reserve { background: var(--reserve); }
   .dot-Stups   { background: var(--stups); }
   .dot-MalleDC { background: var(--malledc); }
+  .dot-Vaccin  { background: var(--vaccin); }
 
   .summary-card-stats {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -647,6 +672,7 @@
   </div>
   <div class="voice-area">
     <button class="voice-btn" id="voiceBtn" title="Dictée vocale">🎤</button>
+    <button class="chain-btn" id="chainBtn" title="Mode chaîne — dicte plusieurs médicaments d'affilée">⛓</button>
     <div class="voice-fields">
       <div class="transcript-box" id="transcript">Appuyez sur 🎤 et dites par exemple : "Doliprane 1000 péremption mars 2026"</div>
       <div class="fields-row">
@@ -666,6 +692,7 @@
             <option value="SDS">SDS</option>
             <option value="Stups">Stups</option>
             <option value="MalleDC">Malle DC</option>
+            <option value="Vaccin">Vaccin</option>
           </select>
         </div>
         <button class="btn btn-primary" onclick="addMed()">+ Ajouter</button>
@@ -732,6 +759,9 @@
     <button class="lieu-tab" onclick="setLieuFilter('MalleDC', this)">
       Malle DC <span class="count" id="count-MalleDC">0</span>
     </button>
+    <button class="lieu-tab" onclick="setLieuFilter('Vaccin', this)">
+      Vaccin <span class="count" id="count-Vaccin">0</span>
+    </button>
   </div>
 
   <!-- Tableau -->
@@ -785,6 +815,7 @@
     <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Stups', this)">Stups</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('MalleDC', this)">Malle DC</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('Vaccin', this)">Vaccin</button>
   </div>
 
   <div class="month-actions">
@@ -808,6 +839,7 @@
           <option value="SDS">SDS</option>
           <option value="Stups">Stups</option>
           <option value="MalleDC">Malle DC</option>
+          <option value="Vaccin">Vaccin</option>
         </select>
       </div>
       <div>
@@ -867,8 +899,8 @@ let lieuFilterMonth   = 'all';
 let currentMonth      = new Date();
 let transferMedId     = null;
 
-const LIEUX = ['VSS', 'SDS', 'Reserve', 'Stups', 'MalleDC'];
-const LIEU_LABELS = { VSS: 'VSS', SDS: 'SDS', Reserve: 'Réserve', Stups: 'Stups', MalleDC: 'Malle DC' };
+const LIEUX = ['VSS', 'SDS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'];
+const LIEU_LABELS = { VSS: 'VSS', SDS: 'SDS', Reserve: 'Réserve', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
 
 // ─────────────────────────────
 // TABS
@@ -1250,12 +1282,44 @@ function esc(str) {
 // ─────────────────────────────
 // DICTÉE VOCALE
 // ─────────────────────────────
-let recognition = null, recording = false;
+let recognition = null, recording = false, chainMode = false;
+
+// Mots-clés qui déclenchent l'enregistrement automatique
+const SAVE_KEYWORDS = ['suivant', 'valider', 'enregistrer', 'ok', 'sauvegarder', 'ajouter'];
+
+function setChainMode(active) {
+  chainMode = active;
+  const btn  = document.getElementById('chainBtn');
+  const hint = document.getElementById('voiceHint');
+  btn.classList.toggle('chain-active', active);
+  if (active) {
+    hint.innerHTML = '🔗 Mode chaîne actif — dites <strong>"Doliprane février 2026 suivant"</strong> pour enregistrer et continuer automatiquement';
+  } else {
+    hint.innerHTML = '💡 Dites : "Doliprane 500 péremption janvier 2027" — ou activez le <strong>mode chaîne</strong> pour enchaîner';
+  }
+}
+
+function startListening() {
+  if (!recognition) return;
+  try {
+    recognition.start();
+    recording = true;
+    document.getElementById('voiceBtn').textContent = '⏹';
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('transcript').textContent = chainMode ? '🔗 En écoute — dites le médicament puis "suivant"…' : 'En écoute…';
+    document.getElementById('transcript').classList.add('active');
+  } catch(e) { toast('Impossible de démarrer le microphone.', 'error'); }
+}
+
+function stopListening() {
+  if (recognition) recognition.stop();
+}
 
 function initVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     document.getElementById('voiceBtn').disabled = true;
+    document.getElementById('chainBtn').disabled = true;
     document.getElementById('voiceUnsupportedMsg').style.display = 'block';
     document.getElementById('voiceHint').style.display = 'none';
     document.getElementById('transcript').style.display = 'none';
@@ -1263,13 +1327,15 @@ function initVoice() {
   }
   try {
     recognition = new SR();
-    recognition.lang = 'fr-FR'; recognition.continuous = false; recognition.interimResults = true;
+    recognition.lang = 'fr-FR';
+    recognition.continuous = false;
+    recognition.interimResults = true;
 
     recognition.onresult = (e) => {
-      let interim='', final='';
-      for (let i=e.resultIndex; i<e.results.length; i++) {
-        const t=e.results[i][0].transcript;
-        if (e.results[i].isFinal) final+=t; else interim+=t;
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t; else interim += t;
       }
       const text = final || interim;
       document.getElementById('transcript').textContent = text;
@@ -1281,28 +1347,50 @@ function initVoice() {
       recording = false;
       document.getElementById('voiceBtn').textContent = '🎤';
       document.getElementById('voiceBtn').classList.remove('recording');
+      // En mode chaîne, on redémarre automatiquement si toujours actif
+      if (chainMode) {
+        setTimeout(() => { if (chainMode) startListening(); }, 400);
+      }
     };
 
     recognition.onerror = (ev) => {
       recording = false;
       document.getElementById('voiceBtn').textContent = '🎤';
       document.getElementById('voiceBtn').classList.remove('recording');
-      const msgs = { 'not-allowed':'Accès micro refusé.', 'no-speech':'Aucune parole détectée.' };
+      if (ev.error === 'no-speech' && chainMode) {
+        // En mode chaîne, on ignore "no-speech" et on relance
+        setTimeout(() => { if (chainMode) startListening(); }, 600);
+        return;
+      }
+      const msgs = { 'not-allowed': 'Accès micro refusé.', 'no-speech': 'Aucune parole détectée.' };
       toast(msgs[ev.error] || 'Erreur microphone', 'error');
+      if (chainMode) setChainMode(false);
     };
 
+    // Bouton micro
     document.getElementById('voiceBtn').addEventListener('click', () => {
-      if (recording) { recognition.stop(); return; }
-      try {
-        recognition.start(); recording = true;
-        document.getElementById('voiceBtn').textContent = '⏹';
-        document.getElementById('voiceBtn').classList.add('recording');
-        document.getElementById('transcript').textContent = 'En écoute…';
-        document.getElementById('transcript').classList.add('active');
-      } catch(e) { toast('Impossible de démarrer le microphone.', 'error'); }
+      if (recording) {
+        if (chainMode) { setChainMode(false); stopListening(); }
+        else { stopListening(); }
+        return;
+      }
+      startListening();
     });
+
+    // Bouton mode chaîne
+    document.getElementById('chainBtn').addEventListener('click', () => {
+      if (chainMode) {
+        setChainMode(false);
+        stopListening();
+      } else {
+        setChainMode(true);
+        startListening();
+      }
+    });
+
   } catch(e) {
     document.getElementById('voiceBtn').disabled = true;
+    document.getElementById('chainBtn').disabled = true;
     document.getElementById('voiceUnsupportedMsg').style.display = 'block';
   }
 }
@@ -1318,21 +1406,36 @@ const MONTHS_FR = {
 };
 
 function parseVoice(text) {
-  const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  let year=null, month=null, day=1;
+  const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  // ── Détection mot-clé de validation ──
+  let autoSave = false;
+  let cleanText = text;
+  for (const kw of SAVE_KEYWORDS) {
+    const re = new RegExp('\\s*' + kw + '\\s*$', 'i');
+    if (re.test(t)) {
+      autoSave = true;
+      cleanText = text.replace(new RegExp('\\s*' + kw + '\\s*$', 'i'), '').trim();
+      break;
+    }
+  }
+
+  const tClean = cleanText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  let year = null, month = null, day = 1;
   let dateStartIndex = -1;
 
   const separators = ['date de peremption','peremption','expire le','expire en','expire','perime le','perime en','perime','jusqu au'];
-  let sepIndex=-1, sepLength=0;
+  let sepIndex = -1;
   for (const sep of separators) {
-    const idx = t.indexOf(sep);
-    if (idx > 1) { sepIndex=idx; sepLength=sep.length; break; }
+    const idx = tClean.indexOf(sep);
+    if (idx > 1) { sepIndex = idx; break; }
   }
 
   const reMonthYear = /(\d{1,2}\s+)?(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/;
   const reSlash = /(\d{1,2})[\/\-](\d{4})/;
 
-  const searchZone = sepIndex >= 0 ? t.slice(sepIndex) : t;
+  const searchZone = sepIndex >= 0 ? tClean.slice(sepIndex) : tClean;
   const searchZoneOffset = sepIndex >= 0 ? sepIndex : 0;
 
   const m1 = searchZone.match(reMonthYear);
@@ -1352,17 +1455,37 @@ function parseVoice(text) {
   }
 
   let cutAt = sepIndex >= 0 ? sepIndex : (dateStartIndex >= 0 ? dateStartIndex : -1);
-  let name = cutAt > 0 ? text.slice(0, cutAt) : text;
-  name = name.replace(/\s+(le|la|les|du|de|en|au|pour|avec|et)\s*$/i,'').replace(/[,;:\-]+$/,'').replace(/\s+/g,' ').trim();
+  let name = cutAt > 0 ? cleanText.slice(0, cutAt) : cleanText;
+  name = name.replace(/\s+(le|la|les|du|de|en|au|pour|avec|et)\s*$/i, '').replace(/[,;:\-]+$/, '').replace(/\s+/g, ' ').trim();
   if (name) name = name.charAt(0).toUpperCase() + name.slice(1);
   if (name) document.getElementById('medName').value = name;
 
   if (year && month) {
     document.getElementById('medDate').value = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    toast(`🎤 "${name}" — ${String(month).padStart(2,'0')}/${year}`);
-  } else if (name) {
+    if (!autoSave) toast(`🎤 "${name}" — ${String(month).padStart(2,'0')}/${year}`);
+  } else if (name && !autoSave) {
     toast(`🎤 Nom : "${name}" — Vérifiez la date`);
   }
+
+  // ── Auto-save si mot-clé détecté ──
+  if (autoSave && name && year && month) {
+    // Petit délai pour que l'UI se mette à jour avant l'enregistrement
+    setTimeout(() => {
+      addMedSilent(name, `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`);
+    }, 200);
+  }
+}
+
+function addMedSilent(name, date) {
+  const lieu = document.getElementById('medLieu').value;
+  meds.push({ id: Date.now().toString(), name, date, lieu });
+  save();
+  // Feedback visuel
+  document.getElementById('transcript').textContent = `✓ "${name}" enregistré — en écoute pour le suivant…`;
+  document.getElementById('medName').value = '';
+  document.getElementById('medDate').value = '';
+  toast(`✓ ${name} ajouté !`);
+  if (currentTab === 'stock') renderStock(); else renderMonth();
 }
 
 // ─────────────────────────────
