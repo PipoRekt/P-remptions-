@@ -552,11 +552,63 @@
     .fields-row { grid-template-columns: 1fr 1fr; }
     .fields-row > *:nth-child(3) { grid-column: 1 / -1; }
     .fields-row .btn { grid-column: 1 / -1; }
-    body { padding: 16px; }
+    body { padding: 12px; }
     .global-summary { grid-template-columns: 1fr; }
-    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
     .month-picker-bar { flex-direction: column; align-items: stretch; }
     .month-nav-group { justify-content: center; }
+
+    /* Masquer le tableau sur mobile */
+    .stock-table-wrap table { display: none; }
+
+    /* Cartes mobiles */
+    .stock-cards { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+
+    .stock-card {
+      background: var(--surface);
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stock-card.expired { border-color: var(--danger); background: var(--danger-light); }
+    .stock-card.soon    { border-color: var(--warn);   background: var(--warn-light); }
+
+    .stock-card-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stock-card-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex: 1;
+    }
+    .stock-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stock-card-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      flex: 1;
+    }
+    .stock-card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .tab { padding: 10px 14px; font-size: 0.82rem; }
+  }
+
+  /* Sur desktop, masquer les cartes mobiles */
+  @media (min-width: 641px) {
+    .stock-cards { display: none; }
   }
 </style>
 </head>
@@ -681,6 +733,7 @@
       </thead>
       <tbody id="stockBody"></tbody>
     </table>
+    <div class="stock-cards" id="stockCards"></div>
     <div id="stockEmpty" class="empty-state" style="display:none;">
       <div class="icon">📦</div><p>Aucun médicament dans le stock.</p>
     </div>
@@ -920,9 +973,10 @@ function renderStock() {
   document.getElementById('stockCountLabel').textContent = `${n} médicament${n > 1 ? 's' : ''}`;
 
   const tbody = document.getElementById('stockBody');
+  const cards = document.getElementById('stockCards');
   const empty = document.getElementById('stockEmpty');
 
-  if (list.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  if (list.length === 0) { tbody.innerHTML = ''; cards.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
 
   tbody.innerHTML = list.map(m => {
@@ -940,6 +994,31 @@ function renderStock() {
         <td><span class="med-badge badge-${s}">${badge}</span></td>
         <td><div class="td-actions">${transferBtn}<button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer">✕</button></div></td>
       </tr>`;
+  }).join('');
+
+  // Version cartes pour mobile
+  cards.innerHTML = list.map(m => {
+    const s     = getStatus(m.date);
+    const badge = badgeLabel(s, m.date);
+    const date  = new Date(m.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
+    const transferBtn = m.lieu === 'Reserve'
+      ? `<button class="btn-transfer" onclick="openTransfer('${m.id}')">↗ Transférer</button>`
+      : '';
+    return `
+      <div class="stock-card ${s}">
+        <div class="stock-card-top">
+          <span class="stock-card-name">💊 ${esc(m.name)}</span>
+          <span class="lieu-badge lieu-${m.lieu}">${LIEU_LABELS[m.lieu]}</span>
+        </div>
+        <div class="stock-card-bottom">
+          <span class="stock-card-date">Exp. ${date}</span>
+          <span class="med-badge badge-${s}">${badge}</span>
+          <div class="stock-card-actions">
+            ${transferBtn}
+            <button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer" style="width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;">✕</button>
+          </div>
+        </div>
+      </div>`;
   }).join('');
 }
 
