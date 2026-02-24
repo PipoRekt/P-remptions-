@@ -645,6 +645,43 @@
   @media (min-width: 641px) {
     .stock-cards { display: none; }
   }
+
+  /* ── EXPORT / IMPORT ── */
+  .backup-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .backup-bar-label {
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .btn-backup {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+
+  .btn-export-json {
+    border: 1.5px solid var(--accent);
+    background: var(--accent-light); color: var(--accent);
+  }
+  .btn-export-json:hover { background: var(--accent); color: white; }
+
+  .btn-import-json {
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--muted);
+  }
+  .btn-import-json:hover { border-color: var(--text); color: var(--text); }
 </style>
 </head>
 <body>
@@ -663,6 +700,14 @@
     </div>
   </div>
 </header>
+
+<!-- ══ BARRE SAUVEGARDE ══ -->
+<div class="backup-bar">
+  <span class="backup-bar-label">💾 Sauvegarde</span>
+  <button class="btn-backup btn-export-json" onclick="exportJSON()">⬇ Exporter JSON</button>
+  <button class="btn-backup btn-import-json" onclick="document.getElementById('importFile').click()">⬆ Importer JSON</button>
+  <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
+</div>
 
 <!-- ══ ENCART AJOUT ══ -->
 <div class="add-card">
@@ -1486,6 +1531,46 @@ function addMedSilent(name, date) {
   document.getElementById('medDate').value = '';
   toast(`✓ ${name} ajouté !`);
   if (currentTab === 'stock') renderStock(); else renderMonth();
+}
+
+// ─────────────────────────────
+// EXPORT / IMPORT JSON
+// ─────────────────────────────
+function exportJSON() {
+  const data = JSON.stringify(meds, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href     = url;
+  a.download = `pharmacie-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`✓ Sauvegarde exportée (${meds.length} médicament${meds.length > 1 ? 's' : ''})`);
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('Format invalide');
+      // Fusionne sans doublons (basé sur l'id)
+      const existingIds = new Set(meds.map(m => m.id));
+      const newMeds = imported.filter(m => !existingIds.has(m.id));
+      meds = [...meds, ...newMeds];
+      save();
+      renderStock();
+      toast(`✓ ${newMeds.length} médicament${newMeds.length > 1 ? 's' : ''} importé${newMeds.length > 1 ? 's' : ''} (${imported.length - newMeds.length} déjà présent${imported.length - newMeds.length > 1 ? 's' : ''})`);
+    } catch(err) {
+      toast('⚠️ Fichier invalide — utilisez un export PharmExpiry', 'error');
+    }
+    // Reset l'input pour permettre de réimporter le même fichier
+    event.target.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ─────────────────────────────
