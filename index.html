@@ -30,8 +30,6 @@
     --radius: 12px;
     --vss: #1a4a7a;
     --vss-light: #ddeaf7;
-    --sds: #6b3a8f;
-    --sds-light: #ecdff7;
     --reserve: #2d6a4f;
     --reserve-light: #d8ead2;
     --stups: #8f3a3a;
@@ -90,7 +88,6 @@
   }
 
   .lieu-VSS      { background: var(--vss-light); color: var(--vss); }
-  .lieu-SDS      { background: var(--sds-light); color: var(--sds); }
   .lieu-Reserve  { background: var(--reserve-light); color: var(--reserve); }
   .lieu-Stups    { background: var(--stups-light); color: var(--stups); }
   .lieu-MalleDC  { background: var(--malledc-light); color: var(--malledc); }
@@ -241,7 +238,6 @@
   }
   .lieu-tab:hover { border-color: var(--text); color: var(--text); }
   .lieu-tab.active-VSS     { background: var(--vss); border-color: var(--vss); color: white; }
-  .lieu-tab.active-SDS     { background: var(--sds); border-color: var(--sds); color: white; }
   .lieu-tab.active-Reserve { background: var(--reserve); border-color: var(--reserve); color: white; }
   .lieu-tab.active-Stups   { background: var(--stups); border-color: var(--stups); color: white; }
   .lieu-tab.active-MalleDC { background: var(--malledc); border-color: var(--malledc); color: white; }
@@ -311,7 +307,6 @@
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
   .dot-VSS     { background: var(--vss); }
-  .dot-SDS     { background: var(--sds); }
   .dot-Reserve { background: var(--reserve); }
   .dot-Stups   { background: var(--stups); }
   .dot-MalleDC { background: var(--malledc); }
@@ -354,15 +349,6 @@
   .td-actions { width: 80px; text-align: right; display: flex; gap: 6px; justify-content: flex-end; }
 
   /* ── BOUTONS ACTION TABLE ── */
-  .btn-transfer {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 6px;
-    border: 1.5px solid var(--accent); background: var(--accent-light);
-    cursor: pointer; color: var(--accent); font-size: 0.75rem;
-    font-family: 'DM Sans', sans-serif; font-weight: 600;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .btn-transfer:hover { background: var(--accent); color: white; }
 
   .med-del {
     width: 28px; height: 28px; border-radius: 6px;
@@ -373,76 +359,6 @@
   }
   .med-del:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
 
-  /* ── MODAL TRANSFERT ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(26,25,22,0.5);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 500; padding: 20px;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-  .modal {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 28px; width: 100%; max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    transform: translateY(16px); transition: transform 0.2s;
-  }
-  .modal-overlay.open .modal { transform: translateY(0); }
-
-  .modal h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 6px; }
-  .modal .med-info { font-size: 0.82rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 20px; }
-
-  .modal-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-
-  .btn-cancel {
-    padding: 9px 18px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: transparent;
-    font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-    color: var(--muted); cursor: pointer; transition: all 0.15s;
-  }
-  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-
-  .qty-input {
-    width: 100%; padding: 10px 12px;
-    background: var(--bg); border: 1.5px solid var(--border);
-    border-radius: 8px; font-family: 'DM Sans', sans-serif;
-    font-size: 1rem; color: var(--text); outline: none;
-    transition: border-color 0.2s; text-align: center;
-    font-weight: 600;
-  }
-  .qty-input:focus { border-color: var(--accent); }
-
-  .transfer-choice {
-    display: flex; gap: 10px;
-  }
-
-  .transfer-opt {
-    flex: 1; padding: 12px; border-radius: 10px;
-    border: 2px solid var(--border); background: var(--bg);
-    cursor: pointer; text-align: left; transition: all 0.15s;
-    display: flex; flex-direction: column; gap: 3px;
-  }
-  .transfer-opt:hover { border-color: var(--accent); }
-  .transfer-opt.active { border-color: var(--accent); background: var(--accent-light); }
-
-  .opt-icon { font-size: 1.2rem; }
-  .opt-label { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--text); }
-  .opt-desc  { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); line-height: 1.3; }
-  .transfer-opt.active .opt-desc { color: var(--accent); }
-
-  .qty-row { display: flex; gap: 8px; align-items: center; }
-  .qty-btn {
-    width: 40px; height: 40px; border-radius: 8px;
-    border: 1.5px solid var(--border); background: var(--bg);
-    font-size: 1.2rem; cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   /* ── VUE PAR MOIS ── */
   .month-picker-bar {
@@ -565,7 +481,7 @@
   @media print {
     body { background: white; padding: 0; }
     header, .add-card, .tabs, #section-stock, .month-picker-bar,
-    .month-actions, .lieu-tabs, .toast, .med-del-round, .modal-overlay { display: none !important; }
+    .month-actions, .lieu-tabs, .toast, .med-del-round { display: none !important; }
     #section-month { display: block !important; }
     .print-header { display: block !important; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #1a1916; }
     .print-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; }
@@ -732,9 +648,8 @@
         <div>
           <label>Lieu</label>
           <select id="medLieu">
-            <option value="Reserve">Réserve</option>
+            <option value="Reserve">Réserve/SDS/Bio</option>
             <option value="VSS">VSS</option>
-            <option value="SDS">SDS</option>
             <option value="Stups">Stups</option>
             <option value="MalleDC">Malle DC</option>
             <option value="Vaccin">Vaccin</option>
@@ -792,11 +707,8 @@
     <button class="lieu-tab" onclick="setLieuFilter('VSS', this)">
       VSS <span class="count" id="count-VSS">0</span>
     </button>
-    <button class="lieu-tab" onclick="setLieuFilter('SDS', this)">
-      SDS <span class="count" id="count-SDS">0</span>
-    </button>
     <button class="lieu-tab" onclick="setLieuFilter('Reserve', this)">
-      Réserve <span class="count" id="count-Reserve">0</span>
+      Réserve/SDS/Bio <span class="count" id="count-Reserve">0</span>
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('Stups', this)">
       Stups <span class="count" id="count-Stups">0</span>
@@ -856,8 +768,7 @@
   <div class="lieu-tabs" id="lieuTabsMonth">
     <button class="lieu-tab active-all" onclick="setLieuFilterMonth('all', this)">Tous</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('VSS', this)">VSS</button>
-    <button class="lieu-tab" onclick="setLieuFilterMonth('SDS', this)">SDS</button>
-    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve/SDS/Bio</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Stups', this)">Stups</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('MalleDC', this)">Malle DC</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Vaccin', this)">Vaccin</button>
@@ -869,45 +780,6 @@
   </div>
 
   <div class="med-list" id="medList"></div>
-</div>
-
-<!-- ══ MODAL TRANSFERT ══ -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal">
-    <h3>↗ Transférer depuis la Réserve</h3>
-    <div class="med-info" id="modalMedInfo"></div>
-    <div class="modal-fields">
-      <div>
-        <label>Vers le lieu</label>
-        <select id="transferDest">
-          <option value="VSS">VSS</option>
-          <option value="SDS">SDS</option>
-          <option value="Stups">Stups</option>
-          <option value="MalleDC">Malle DC</option>
-          <option value="Vaccin">Vaccin</option>
-        </select>
-      </div>
-      <div>
-        <label>Type de transfert</label>
-        <div class="transfer-choice">
-          <button class="transfer-opt active" id="opt-tout" onclick="selectTransferType('tout')">
-            <span class="opt-icon">📦→</span>
-            <span class="opt-label">Tout</span>
-            <span class="opt-desc">Déplace et supprime de la Réserve</span>
-          </button>
-          <button class="transfer-opt" id="opt-partiel" onclick="selectTransferType('partiel')">
-            <span class="opt-icon">📋</span>
-            <span class="opt-label">Partiel</span>
-            <span class="opt-desc">Copie, reste aussi en Réserve</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModalDirect()">Annuler</button>
-      <button class="btn btn-primary" onclick="confirmTransfer()">Transférer</button>
-    </div>
-  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -942,10 +814,9 @@ let stockFilter       = 'all';
 let lieuFilter        = 'all';
 let lieuFilterMonth   = 'all';
 let currentMonth      = new Date();
-let transferMedId     = null;
 
-const LIEUX = ['VSS', 'SDS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'];
-const LIEU_LABELS = { VSS: 'VSS', SDS: 'SDS', Reserve: 'Réserve', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
+const LIEUX = ['VSS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'];
+const LIEU_LABELS = { VSS: 'VSS', Reserve: 'Réserve/SDS/Bio', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
 
 // ─────────────────────────────
 // TABS
@@ -1082,16 +953,13 @@ function renderStock() {
     const s     = getStatus(m.date);
     const badge = badgeLabel(s, m.date);
     const date  = new Date(m.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-    const transferBtn = m.lieu === 'Reserve'
-      ? `<button class="btn-transfer" onclick="openTransfer('${m.id}')" title="Transférer vers VSS ou SDS">↗ Transférer</button>`
-      : '';
     return `
       <tr>
         <td class="td-name">💊 ${esc(m.name)}</td>
         <td><span class="lieu-badge lieu-${m.lieu}">${LIEU_LABELS[m.lieu]}</span></td>
         <td class="td-date">${date}</td>
         <td><span class="med-badge badge-${s}">${badge}</span></td>
-        <td><div class="td-actions">${transferBtn}<button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer">✕</button></div></td>
+        <td><div class="td-actions"><button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer">✕</button></div></td>
       </tr>`;
   }).join('');
 
@@ -1100,9 +968,6 @@ function renderStock() {
     const s     = getStatus(m.date);
     const badge = badgeLabel(s, m.date);
     const date  = new Date(m.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
-    const transferBtn = m.lieu === 'Reserve'
-      ? `<button class="btn-transfer" onclick="openTransfer('${m.id}')">↗ Transférer</button>`
-      : '';
     return `
       <div class="stock-card ${s}">
         <div class="stock-card-top">
@@ -1113,7 +978,6 @@ function renderStock() {
           <span class="stock-card-date">Exp. ${date}</span>
           <span class="med-badge badge-${s}">${badge}</span>
           <div class="stock-card-actions">
-            ${transferBtn}
             <button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer" style="width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;">✕</button>
           </div>
         </div>
@@ -1254,58 +1118,6 @@ function deleteMed(id) {
 // ─────────────────────────────
 // TRANSFERT
 // ─────────────────────────────
-let transferType = 'tout'; // 'tout' ou 'partiel'
-
-function selectTransferType(type) {
-  transferType = type;
-  document.getElementById('opt-tout').classList.toggle('active', type === 'tout');
-  document.getElementById('opt-partiel').classList.toggle('active', type === 'partiel');
-}
-
-function openTransfer(id) {
-  transferMedId = id;
-  const med = meds.find(m => m.id === id);
-  if (!med) return;
-  const date = new Date(med.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-  document.getElementById('modalMedInfo').textContent = `💊 ${med.name} — Exp. ${date}`;
-  document.getElementById('transferDest').value = 'VSS';
-  selectTransferType('tout');
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
-}
-
-function closeModalDirect() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  transferMedId = null;
-}
-
-function confirmTransfer() {
-  const med  = meds.find(m => m.id === transferMedId);
-  const dest = document.getElementById('transferDest').value;
-  if (!med) return;
-
-  // Crée une copie dans la destination si elle n'existe pas déjà
-  const existing = meds.find(m => m.name === med.name && m.date === med.date && m.lieu === dest);
-  if (!existing) {
-    meds.push({ id: Date.now().toString(), name: med.name, date: med.date, lieu: dest });
-  }
-
-  // "Tout" → supprime de la Réserve / "Partiel" → garde en Réserve
-  if (transferType === 'tout') {
-    meds = meds.filter(m => m.id !== transferMedId);
-    toast(`↗ ${med.name} transféré vers ${LIEU_LABELS[dest]}`);
-  } else {
-    toast(`📋 ${med.name} copié vers ${LIEU_LABELS[dest]} (reste en Réserve)`);
-  }
-
-  save();
-  closeModalDirect();
-  renderStock();
-}
-
 // ─────────────────────────────
 // EXPORT PDF
 // ─────────────────────────────
