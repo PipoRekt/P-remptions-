@@ -34,11 +34,12 @@
     padding: 24px;
   }
 
+  /* ── HEADER ── */
   header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
     padding-bottom: 20px;
     border-bottom: 1.5px solid var(--border);
   }
@@ -50,9 +51,7 @@
     letter-spacing: -0.5px;
   }
 
-  .logo span {
-    color: var(--accent);
-  }
+  .logo span { color: var(--accent); }
 
   .logo p {
     font-size: 0.8rem;
@@ -63,14 +62,9 @@
     margin-top: 2px;
   }
 
-  .stats-bar {
-    display: flex;
-    gap: 24px;
-  }
+  .stats-bar { display: flex; gap: 24px; }
 
-  .stat {
-    text-align: right;
-  }
+  .stat { text-align: right; }
 
   .stat .n {
     font-family: 'DM Serif Display', serif;
@@ -90,22 +84,33 @@
   .stat.warn .n { color: var(--warn); }
   .stat.danger .n { color: var(--danger); }
 
-  /* DICTEE VOCALE */
-  .voice-card {
+  /* ── ENCART AJOUT ── */
+  .add-card {
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
 
-  .voice-card h2 {
+  .add-card h2 {
     font-family: 'DM Serif Display', serif;
     font-size: 1.15rem;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .voice-unsupported-msg {
+    font-size: 0.82rem;
+    color: var(--warn);
+    font-family: 'DM Mono', monospace;
+    background: var(--warn-light);
+    border: 1px solid var(--warn);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
   }
 
   .voice-btn {
@@ -130,17 +135,14 @@
     animation: pulse 1s infinite;
     box-shadow: 0 4px 20px rgba(139,26,26,0.4);
   }
+  .voice-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
   @keyframes pulse {
     0%,100% { box-shadow: 0 4px 20px rgba(139,26,26,0.4); }
     50% { box-shadow: 0 4px 32px rgba(139,26,26,0.7); }
   }
 
-  .voice-area {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
+  .voice-area { display: flex; gap: 16px; align-items: flex-start; }
 
   .voice-fields {
     flex: 1;
@@ -191,6 +193,8 @@
     color: var(--text);
     outline: none;
     transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   input:focus { border-color: var(--accent); }
@@ -207,82 +211,103 @@
     white-space: nowrap;
   }
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-
+  .btn-primary { background: var(--accent); color: white; }
   .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
 
   .voice-hint {
     font-size: 0.78rem;
     color: var(--muted);
     font-style: italic;
-    margin-top: 4px;
   }
 
-  /* NAVIGATION MOIS */
-  .month-nav {
+  /* ── ONGLETS ── */
+  .tabs {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--border);
   }
 
-  .month-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    text-transform: capitalize;
-  }
-
-  .nav-btns {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .nav-btn {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    color: var(--text);
-  }
-
-  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-today {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    font-size: 0.78rem;
-    font-family: 'DM Mono', monospace;
-    cursor: pointer;
-    transition: all 0.15s;
+  .tab {
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
   }
 
-  .btn-today:hover { border-color: var(--accent); color: var(--accent); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
 
-  /* FILTRES */
-  .filters {
+  .tab:not(.active):hover { color: var(--text); }
+
+  .tab-badge {
+    font-size: 0.68rem;
+    font-family: 'DM Mono', monospace;
+    background: var(--border);
+    color: var(--muted);
+    padding: 1px 7px;
+    border-radius: 20px;
+  }
+
+  .tab.active .tab-badge {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── STOCK TOTAL ── */
+  .stock-controls {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
     flex-wrap: wrap;
   }
 
-  .filter-btn {
-    padding: 6px 14px;
+  .search-input { flex: 1; min-width: 180px; }
+
+  .sort-select {
+    padding: 10px 32px 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    background: var(--surface);
+    color: var(--muted);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a756c'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  .stock-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-pill {
+    padding: 5px 14px;
     border-radius: 20px;
     border: 1.5px solid var(--border);
     background: transparent;
@@ -293,22 +318,170 @@
     color: var(--muted);
   }
 
-  .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
+  .filter-pill.active { background: var(--ink); border-color: var(--ink); color: white; }
+  .filter-pill.f-expired.active { background: var(--danger); border-color: var(--danger); }
+  .filter-pill.f-soon.active { background: var(--warn); border-color: var(--warn); }
+  .filter-pill.f-ok.active { background: var(--ok); border-color: var(--ok); }
+
+  /* Tableau stock */
+  .stock-table-wrap {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
 
-  .filter-btn.all.active { background: var(--ink); border-color: var(--ink); }
-  .filter-btn.soon.active { background: var(--warn); border-color: var(--warn); }
-  .filter-btn.expired.active { background: var(--danger); border-color: var(--danger); }
-
-  /* LISTE MEDICAMENTS */
-  .med-list {
+  .stock-table-header {
+    padding: 14px 20px;
+    border-bottom: 1.5px solid var(--border);
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
   }
+
+  .stock-table-header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 0.68rem;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  tbody td {
+    padding: 12px 20px;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #f5f3ef; }
+
+  .td-name { font-weight: 600; }
+
+  .td-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .td-del { width: 40px; text-align: right; }
+
+  /* ── PAR MOIS ── */
+  .month-picker-bar {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .month-picker-bar label {
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .month-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .nav-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .month-label-display {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    text-transform: capitalize;
+    flex: 1;
+    text-align: center;
+  }
+
+  .month-picker-input {
+    padding: 8px 12px !important;
+    width: auto !important;
+    font-size: 0.85rem !important;
+  }
+
+  .btn-today {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .btn-today:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Liste médicaments par mois */
+  .month-summary {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .summary-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chip-expired { background: var(--danger-light); color: var(--danger); }
+  .chip-soon { background: var(--warn-light); color: var(--warn); }
+  .chip-ok { background: var(--ok-light); color: var(--ok); }
+
+  .med-list { display: flex; flex-direction: column; gap: 8px; }
 
   .med-item {
     background: var(--surface);
@@ -317,27 +490,22 @@
     padding: 14px 18px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
     transition: all 0.15s;
-    animation: slideIn 0.3s ease;
+    animation: slideIn 0.25s ease;
   }
 
   @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
+    from { opacity: 0; transform: translateY(-6px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .med-item:hover { border-color: var(--accent); }
   .med-item.expired { border-color: var(--danger); background: var(--danger-light); }
   .med-item.soon { border-color: var(--warn); background: var(--warn-light); }
-  .med-item.ok { border-color: var(--ok); }
+  .med-item.ok { border-left: 3px solid var(--ok); }
 
-  .med-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    flex: 1;
-  }
+  .med-name { font-weight: 600; font-size: 0.95rem; flex: 1; }
 
   .med-date {
     font-family: 'DM Mono', monospace;
@@ -380,23 +548,15 @@
     text-align: center;
     padding: 60px 20px;
     color: var(--muted);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
   }
 
-  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
-  .empty-state p { font-size: 0.9rem; }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.4; }
+  .empty-state p { font-size: 0.88rem; }
 
-  .search-input {
-    flex: 1;
-  }
-
-  .top-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    align-items: center;
-  }
-
-  /* Notification toast */
+  /* ── TOAST ── */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -417,15 +577,124 @@
   .toast.success { background: var(--accent); }
   .toast.error { background: var(--danger); }
 
+  /* ── BOUTON EXPORT PDF ── */
+  .btn-export {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-export:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .month-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* ── CSS IMPRESSION (export PDF) ── */
+  @media print {
+    /* Cacher tout sauf la zone d'impression */
+    body { background: white; padding: 0; }
+    header, .add-card, .tabs, #section-stock,
+    .month-picker-bar, .month-actions,
+    .toast, .med-del { display: none !important; }
+
+    #section-month { display: block !important; }
+
+    .print-header {
+      display: block !important;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #1a1916;
+    }
+
+    .print-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: #1a1916;
+    }
+
+    .print-subtitle {
+      font-size: 0.8rem;
+      color: #7a756c;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+
+    .print-stats {
+      display: flex !important;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .print-stat-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-family: monospace;
+    }
+
+    .month-summary { margin-bottom: 16px; }
+
+    .summary-chip { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+    .med-item {
+      break-inside: avoid;
+      border: 1px solid #d8d3ca !important;
+      margin-bottom: 6px;
+      padding: 10px 14px;
+    }
+
+    .med-item.expired { background: #fde8e8 !important; border-color: #8b1a1a !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .med-item.soon    { background: #fdebd8 !important; border-color: #b5541a !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+    .med-badge { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+    .empty-state { border: 1px solid #d8d3ca; }
+
+    @page {
+      margin: 20mm 15mm;
+    }
+  }
+
+  /* Masquer l'en-tête print en mode normal */
+  .print-header { display: none; }
+  .print-stats { display: none; }
+
+  /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .stats-bar { display: none; }
-    .fields-row { grid-template-columns: 1fr 1fr; }
-    .fields-row .btn { grid-column: 1/-1; }
+    .fields-row { grid-template-columns: 1fr; }
+    body { padding: 16px; }
+    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+    .month-picker-bar { flex-direction: column; align-items: stretch; }
+    .month-nav-group { justify-content: center; }
   }
 </style>
 </head>
 <body>
 
+<!-- ══ HEADER ══ -->
 <header>
   <div class="logo">
     <h1>Pharm<span>Expiry</span></h1>
@@ -442,14 +711,17 @@
     </div>
     <div class="stat" id="stat-total">
       <div class="n">0</div>
-      <div class="l">Total</div>
+      <div class="l">Total stock</div>
     </div>
   </div>
 </header>
 
-<!-- AJOUT VOCAL -->
-<div class="voice-card">
+<!-- ══ ENCART AJOUT (toujours visible) ══ -->
+<div class="add-card">
   <h2>🎤 Ajouter un médicament</h2>
+  <div id="voiceUnsupportedMsg" class="voice-unsupported-msg" style="display:none;">
+    🎤 La dictée vocale n'est pas disponible sur ce navigateur. Saisissez directement le nom et la date ci-dessous.
+  </div>
   <div class="voice-area">
     <button class="voice-btn" id="voiceBtn" title="Dictée vocale">🎤</button>
     <div class="voice-fields">
@@ -465,53 +737,148 @@
         </div>
         <button class="btn btn-primary" onclick="addMed()">+ Ajouter</button>
       </div>
-      <p class="voice-hint">💡 Dites : "Doliprane 500 péremption janvier 2027" ou "Amoxicilline expire le 15 mars 2026"</p>
+      <p class="voice-hint" id="voiceHint">💡 Dites : "Doliprane 500 péremption janvier 2027" ou "Amoxicilline expire le 15 mars 2026"</p>
     </div>
   </div>
 </div>
 
-<!-- NAVIGATION ET FILTRES -->
-<div class="month-nav">
-  <div class="nav-btns">
-    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
-    <button class="btn-today" onclick="goToToday()">Aujourd'hui</button>
-    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+<!-- ══ ONGLETS ══ -->
+<div class="tabs">
+  <button class="tab active" id="tab-stock" onclick="switchTab('stock')">
+    📦 Stock total
+    <span class="tab-badge" id="badge-stock">0</span>
+  </button>
+  <button class="tab" id="tab-month" onclick="switchTab('month')">
+    📅 Par mois
+    <span class="tab-badge" id="badge-month">—</span>
+  </button>
+</div>
+
+<!-- ══════ ONGLET STOCK TOTAL ══════ -->
+<div class="section active" id="section-stock">
+
+  <div class="stock-controls">
+    <input class="search-input" type="text" id="searchStock" placeholder="🔍 Rechercher dans le stock…" oninput="renderStock()">
+    <select class="sort-select" id="sortStock" onchange="renderStock()">
+      <option value="status">Urgence d'abord</option>
+      <option value="date-asc">Date la plus proche</option>
+      <option value="date-desc">Date la plus lointaine</option>
+      <option value="name-asc">Nom A → Z</option>
+      <option value="name-desc">Nom Z → A</option>
+    </select>
   </div>
-  <div class="month-title" id="monthTitle"></div>
-  <input type="month" id="monthPicker" onchange="onMonthPick()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none;">
+
+  <div class="stock-filters">
+    <button class="filter-pill active" onclick="setStockFilter('all', this)">Tout</button>
+    <button class="filter-pill f-expired" onclick="setStockFilter('expired', this)">🔴 Périmés</button>
+    <button class="filter-pill f-soon" onclick="setStockFilter('soon', this)">🟠 Bientôt (≤30j)</button>
+    <button class="filter-pill f-ok" onclick="setStockFilter('ok', this)">🟢 OK</button>
+  </div>
+
+  <div class="stock-table-wrap">
+    <div class="stock-table-header">
+      <span id="stockCountLabel">0 médicament</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Médicament</th>
+          <th>Date de péremption</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="stockBody"></tbody>
+    </table>
+    <div id="stockEmpty" class="empty-state" style="display:none;">
+      <div class="icon">📦</div>
+      <p>Aucun médicament dans le stock.</p>
+    </div>
+  </div>
 </div>
 
-<div class="filters">
-  <button class="filter-btn all active" onclick="setFilter('all', this)">Tous</button>
-  <button class="filter-btn expired" onclick="setFilter('expired', this)">Périmés ce mois</button>
-  <button class="filter-btn soon" onclick="setFilter('soon', this)">Bientôt (≤30j)</button>
-  <button class="filter-btn" onclick="setFilter('future', this)">OK</button>
-</div>
+<!-- ══════ ONGLET PAR MOIS ══════ -->
+<div class="section" id="section-month">
 
-<div class="top-controls">
-  <input class="search-input" type="text" id="search" placeholder="🔍 Rechercher un médicament…" oninput="renderList()">
-</div>
+  <!-- En-tête visible uniquement à l'impression -->
+  <div class="print-header">
+    <div class="print-title">Pharm<span style="color:#2d6a4f">Expiry</span> — Péremptions du mois</div>
+    <div class="print-subtitle" id="printSubtitle"></div>
+  </div>
 
-<div class="med-list" id="medList"></div>
+  <!-- Sélecteur de mois -->
+  <div class="month-picker-bar">
+    <label>Mois à afficher</label>
+    <div class="month-nav-group">
+      <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-label-display" id="monthLabel"></div>
+      <button class="nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <input class="month-picker-input" type="month" id="monthPicker" onchange="onMonthPick()">
+    <button class="btn-today" onclick="goToToday()">Ce mois-ci</button>
+  </div>
+
+  <!-- Actions + résumé -->
+  <div class="month-actions">
+    <div class="month-summary" id="monthSummary"></div>
+    <button class="btn-export" onclick="exportPDF()" id="btnExport">
+      ⬇ Exporter en PDF
+    </button>
+  </div>
+
+  <!-- Liste -->
+  <div class="med-list" id="medList"></div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ─────────────────────────────────────
+// ─────────────────────────────
 // STORAGE
-// ─────────────────────────────────────
-let meds = JSON.parse(localStorage.getItem('pharmExpiry') || '[]');
-let currentMonth = new Date(); // date used as reference for month view
-let currentFilter = 'all';
+// ─────────────────────────────
+let meds = [];
 
-function save() {
-  localStorage.setItem('pharmExpiry', JSON.stringify(meds));
+function loadData() {
+  try {
+    const raw = localStorage.getItem('pharmExpiry');
+    if (raw) meds = JSON.parse(raw);
+  } catch(e) { meds = []; }
 }
 
-// ─────────────────────────────────────
+function save() {
+  try {
+    localStorage.setItem('pharmExpiry', JSON.stringify(meds));
+  } catch(e) {
+    toast('⚠️ Stockage non disponible (mode privé ?)', 'error');
+  }
+}
+
+loadData();
+
+// ─────────────────────────────
+// STATE
+// ─────────────────────────────
+let currentTab = 'stock';
+let stockFilter = 'all';
+let currentMonth = new Date();
+
+// ─────────────────────────────
+// TABS
+// ─────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('section-stock').classList.toggle('active', tab === 'stock');
+  document.getElementById('section-month').classList.toggle('active', tab === 'month');
+  document.getElementById('tab-stock').classList.toggle('active', tab === 'stock');
+  document.getElementById('tab-month').classList.toggle('active', tab === 'month');
+  if (tab === 'stock') renderStock();
+  else renderMonth();
+}
+
+// ─────────────────────────────
 // TOAST
-// ─────────────────────────────────────
-function toast(msg, type='success') {
+// ─────────────────────────────
+function toast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast ' + type;
@@ -519,19 +886,193 @@ function toast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ─────────────────────────────────────
-// MONTH NAVIGATION
-// ─────────────────────────────────────
+// ─────────────────────────────
+// STATUS
+// ─────────────────────────────
+function getStatus(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(dateStr + 'T00:00:00');
+  const diff = Math.floor((exp - today) / 86400000);
+  if (diff < 0) return 'expired';
+  if (diff <= 30) return 'soon';
+  return 'ok';
+}
+
+function getDiff(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.floor((new Date(dateStr + 'T00:00:00') - today) / 86400000);
+}
+
+function badgeLabel(status, dateStr) {
+  const diff = getDiff(dateStr);
+  if (status === 'expired') return `Périmé il y a ${Math.abs(diff)}j`;
+  if (status === 'soon') return `Dans ${diff} jour${diff > 1 ? 's' : ''}`;
+  return `OK — ${diff}j`;
+}
+
+function statusOrder(s) { return s === 'expired' ? 0 : s === 'soon' ? 1 : 2; }
+
+// ─────────────────────────────
+// STATS HEADER
+// ─────────────────────────────
+function updateStats() {
+  let expired = 0, soon = 0;
+  meds.forEach(m => {
+    const s = getStatus(m.date);
+    if (s === 'expired') expired++;
+    if (s === 'soon') soon++;
+  });
+  document.querySelector('#stat-expired .n').textContent = expired;
+  document.querySelector('#stat-soon .n').textContent = soon;
+  document.querySelector('#stat-total .n').textContent = meds.length;
+  document.getElementById('badge-stock').textContent = meds.length;
+}
+
+// ─────────────────────────────
+// RENDER STOCK
+// ─────────────────────────────
+function renderStock() {
+  updateStats();
+  const search = document.getElementById('searchStock').value.toLowerCase();
+  const sort = document.getElementById('sortStock').value;
+
+  let list = meds.filter(m => {
+    if (!m.name.toLowerCase().includes(search)) return false;
+    const s = getStatus(m.date);
+    if (stockFilter === 'all') return true;
+    return s === stockFilter;
+  });
+
+  list.sort((a, b) => {
+    if (sort === 'status') return statusOrder(getStatus(a.date)) - statusOrder(getStatus(b.date));
+    if (sort === 'date-asc') return new Date(a.date) - new Date(b.date);
+    if (sort === 'date-desc') return new Date(b.date) - new Date(a.date);
+    if (sort === 'name-asc') return a.name.localeCompare(b.name, 'fr');
+    if (sort === 'name-desc') return b.name.localeCompare(a.name, 'fr');
+  });
+
+  const n = list.length;
+  document.getElementById('stockCountLabel').textContent = `${n} médicament${n > 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('stockBody');
+  const empty = document.getElementById('stockEmpty');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = list.map(m => {
+    const s = getStatus(m.date);
+    const badge = badgeLabel(s, m.date);
+    const dateLabel = new Date(m.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+    return `
+      <tr>
+        <td class="td-name">💊 ${esc(m.name)}</td>
+        <td class="td-date">${dateLabel}</td>
+        <td><span class="med-badge badge-${s}">${badge}</span></td>
+        <td class="td-del"><button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer">✕</button></td>
+      </tr>`;
+  }).join('');
+}
+
+function setStockFilter(f, btn) {
+  stockFilter = f;
+  document.querySelectorAll('.stock-filters .filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStock();
+}
+
+// ─────────────────────────────
+// RENDER PAR MOIS
+// — n'affiche QUE les médicaments
+//   qui périment CE MOIS précis
+// ─────────────────────────────
+function renderMonth() {
+  updateStats();
+  const y = currentMonth.getFullYear();
+  const mo = currentMonth.getMonth();
+
+  const list = meds.filter(m => {
+    const exp = new Date(m.date + 'T00:00:00');
+    return exp.getFullYear() === y && exp.getMonth() === mo;
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Badge onglet
+  document.getElementById('badge-month').textContent = list.length || '0';
+
+  // Résumé
+  let expiredC = 0, soonC = 0, okC = 0;
+  list.forEach(m => {
+    const s = getStatus(m.date);
+    if (s === 'expired') expiredC++;
+    else if (s === 'soon') soonC++;
+    else okC++;
+  });
+
+  const summaryEl = document.getElementById('monthSummary');
+  if (list.length > 0) {
+    summaryEl.innerHTML = [
+      expiredC ? `<span class="summary-chip chip-expired">🔴 ${expiredC} périmé${expiredC>1?'s':''}</span>` : '',
+      soonC    ? `<span class="summary-chip chip-soon">🟠 ${soonC} bientôt</span>` : '',
+      okC      ? `<span class="summary-chip chip-ok">🟢 ${okC} OK</span>` : '',
+    ].join('');
+  } else {
+    summaryEl.innerHTML = '';
+  }
+
+  const container = document.getElementById('medList');
+  const btnExport = document.getElementById('btnExport');
+
+  if (list.length === 0) {
+    btnExport.style.display = 'none';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <p>Aucun médicament ne périme en ${currentMonth.toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}.</p>
+      </div>`;
+    return;
+  }
+
+  btnExport.style.display = 'flex';
+
+  container.innerHTML = list.map(m => {
+    const s = getStatus(m.date);
+    const badge = badgeLabel(s, m.date);
+    const dateLabel = new Date(m.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+    return `
+      <div class="med-item ${s}">
+        <div class="med-name">💊 ${esc(m.name)}</div>
+        <div class="med-date">Exp. ${dateLabel}</div>
+        <span class="med-badge badge-${s}">${badge}</span>
+        <button class="med-del" onclick="deleteMed('${m.id}')" title="Supprimer">✕</button>
+      </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────
+// NAVIGATION MOIS
+// ─────────────────────────────
+function updateMonthDisplay() {
+  const label = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  document.getElementById('monthLabel').textContent = label;
+  const y = currentMonth.getFullYear();
+  const m = String(currentMonth.getMonth() + 1).padStart(2, '0');
+  document.getElementById('monthPicker').value = `${y}-${m}`;
+}
+
 function changeMonth(d) {
   currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + d, 1);
   updateMonthDisplay();
-  renderList();
+  renderMonth();
 }
 
 function goToToday() {
   currentMonth = new Date();
   updateMonthDisplay();
-  renderList();
+  renderMonth();
 }
 
 function onMonthPick() {
@@ -540,112 +1081,12 @@ function onMonthPick() {
   const [y, m] = v.split('-');
   currentMonth = new Date(parseInt(y), parseInt(m) - 1, 1);
   updateMonthDisplay();
-  renderList();
+  renderMonth();
 }
 
-function updateMonthDisplay() {
-  const label = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  document.getElementById('monthTitle').textContent = label;
-  const y = currentMonth.getFullYear();
-  const m = String(currentMonth.getMonth() + 1).padStart(2, '0');
-  document.getElementById('monthPicker').value = `${y}-${m}`;
-}
-
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderList();
-}
-
-// ─────────────────────────────────────
-// STATUS
-// ─────────────────────────────────────
-function getStatus(dateStr) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const exp = new Date(dateStr);
-  const diff = Math.floor((exp - today) / 86400000);
-  if (diff < 0) return 'expired';
-  if (diff <= 30) return 'soon';
-  return 'ok';
-}
-
-function badgeLabel(status, dateStr) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const exp = new Date(dateStr);
-  const diff = Math.floor((exp - today) / 86400000);
-  if (status === 'expired') return `Périmé (${Math.abs(diff)}j)`;
-  if (status === 'soon') return `Dans ${diff} jour${diff>1?'s':''}`;
-  return `OK — ${diff}j`;
-}
-
-// ─────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────
-function renderList() {
-  const y = currentMonth.getFullYear();
-  const m = currentMonth.getMonth();
-  const search = document.getElementById('search').value.toLowerCase();
-
-  // Filter by month: show meds expiring in selected month OR before (expired ones), based on filter
-  let list = meds.filter(med => {
-    const exp = new Date(med.date);
-    const status = getStatus(med.date);
-    const nameOk = med.name.toLowerCase().includes(search);
-    if (!nameOk) return false;
-
-    const expYear = exp.getFullYear();
-    const expMonth = exp.getMonth();
-
-    if (currentFilter === 'all') {
-      // show all that expire in or before this month
-      return (expYear < y) || (expYear === y && expMonth <= m);
-    }
-    if (currentFilter === 'expired') return status === 'expired' && expYear === y && expMonth === m;
-    if (currentFilter === 'soon') return status === 'soon';
-    if (currentFilter === 'future') return status === 'ok' && expYear === y && expMonth === m;
-    return true;
-  });
-
-  // Sort by date
-  list.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  // Stats (all meds, ignoring month filter)
-  const today = new Date(); today.setHours(0,0,0,0);
-  let expired = 0, soon = 0;
-  meds.forEach(med => {
-    const s = getStatus(med.date);
-    if (s === 'expired') expired++;
-    if (s === 'soon') soon++;
-  });
-  document.querySelector('#stat-expired .n').textContent = expired;
-  document.querySelector('#stat-soon .n').textContent = soon;
-  document.querySelector('#stat-total .n').textContent = meds.length;
-
-  const container = document.getElementById('medList');
-  if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">💊</div><p>Aucun médicament pour cette période.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = list.map(med => {
-    const status = getStatus(med.date);
-    const badge = badgeLabel(status, med.date);
-    const dateLabel = new Date(med.date).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-    return `
-      <div class="med-item ${status}">
-        <div class="med-name">💊 ${med.name}</div>
-        <div class="med-date">Exp. ${dateLabel}</div>
-        <span class="med-badge badge-${status}">${badge}</span>
-        <button class="med-del" onclick="deleteMed('${med.id}')" title="Supprimer">✕</button>
-      </div>
-    `;
-  }).join('');
-}
-
-// ─────────────────────────────────────
+// ─────────────────────────────
 // ADD / DELETE
-// ─────────────────────────────────────
+// ─────────────────────────────
 function addMed() {
   const name = document.getElementById('medName').value.trim();
   const date = document.getElementById('medDate').value;
@@ -657,7 +1098,8 @@ function addMed() {
   document.getElementById('transcript').textContent = 'Appuyez sur 🎤 et dites par exemple : "Doliprane 1000 péremption mars 2026"';
   document.getElementById('transcript').classList.remove('active');
   toast(`✓ ${name} ajouté`);
-  renderList();
+  if (currentTab === 'stock') renderStock();
+  else renderMonth();
 }
 
 function deleteMed(id) {
@@ -665,69 +1107,83 @@ function deleteMed(id) {
   meds = meds.filter(m => m.id !== id);
   save();
   toast(`🗑 ${med?.name || 'Médicament'} supprimé`);
-  renderList();
+  if (currentTab === 'stock') renderStock();
+  else renderMonth();
 }
 
-// ─────────────────────────────────────
-// DICTÉE VOCALE
-// ─────────────────────────────────────
-let recognition;
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────
+// DICTÉE VOCALE (Safari-safe)
+// ─────────────────────────────
+let recognition = null;
 let recording = false;
 
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+function initVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'fr-FR';
-  recognition.continuous = false;
-  recognition.interimResults = true;
+  if (!SR) {
+    document.getElementById('voiceBtn').disabled = true;
+    document.getElementById('voiceUnsupportedMsg').style.display = 'block';
+    document.getElementById('voiceHint').style.display = 'none';
+    document.getElementById('transcript').style.display = 'none';
+    return;
+  }
+  try {
+    recognition = new SR();
+    recognition.lang = 'fr-FR';
+    recognition.continuous = false;
+    recognition.interimResults = true;
 
-  recognition.onresult = (e) => {
-    let interim = '', final = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) final += t;
-      else interim += t;
-    }
-    const text = (final || interim);
-    document.getElementById('transcript').textContent = text;
-    document.getElementById('transcript').classList.add('active');
-    if (final) parseVoice(final);
-  };
+    recognition.onresult = (e) => {
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t; else interim += t;
+      }
+      const text = final || interim;
+      document.getElementById('transcript').textContent = text;
+      document.getElementById('transcript').classList.add('active');
+      if (final) parseVoice(final);
+    };
 
-  recognition.onend = () => {
-    recording = false;
-    document.getElementById('voiceBtn').textContent = '🎤';
-    document.getElementById('voiceBtn').classList.remove('recording');
-  };
+    recognition.onend = () => {
+      recording = false;
+      document.getElementById('voiceBtn').textContent = '🎤';
+      document.getElementById('voiceBtn').classList.remove('recording');
+    };
 
-  recognition.onerror = () => {
-    recording = false;
-    document.getElementById('voiceBtn').textContent = '🎤';
-    document.getElementById('voiceBtn').classList.remove('recording');
-    toast('Erreur microphone', 'error');
-  };
-} else {
-  document.getElementById('voiceBtn').style.opacity = '0.4';
-  document.getElementById('voiceBtn').title = 'Dictée vocale non supportée par ce navigateur';
+    recognition.onerror = (ev) => {
+      recording = false;
+      document.getElementById('voiceBtn').textContent = '🎤';
+      document.getElementById('voiceBtn').classList.remove('recording');
+      const msgs = { 'not-allowed': 'Accès micro refusé. Autorisez-le dans les réglages.', 'no-speech': 'Aucune parole détectée.' };
+      toast(msgs[ev.error] || 'Erreur microphone : ' + ev.error, 'error');
+    };
+
+    document.getElementById('voiceBtn').addEventListener('click', () => {
+      if (recording) { recognition.stop(); return; }
+      try {
+        recognition.start();
+        recording = true;
+        document.getElementById('voiceBtn').textContent = '⏹';
+        document.getElementById('voiceBtn').classList.add('recording');
+        document.getElementById('transcript').textContent = 'En écoute…';
+        document.getElementById('transcript').classList.add('active');
+      } catch(e) { toast('Impossible de démarrer le microphone.', 'error'); }
+    });
+  } catch(e) {
+    document.getElementById('voiceBtn').disabled = true;
+    document.getElementById('voiceUnsupportedMsg').style.display = 'block';
+  }
 }
 
-document.getElementById('voiceBtn').addEventListener('click', () => {
-  if (!recognition) { toast('Navigateur non compatible', 'error'); return; }
-  if (recording) {
-    recognition.stop();
-  } else {
-    recognition.start();
-    recording = true;
-    document.getElementById('voiceBtn').textContent = '⏹';
-    document.getElementById('voiceBtn').classList.add('recording');
-    document.getElementById('transcript').textContent = 'En écoute…';
-    document.getElementById('transcript').classList.add('active');
-  }
-});
+initVoice();
 
-// ─────────────────────────────────────
-// PARSING VOIX → NOM + DATE
-// ─────────────────────────────────────
+// ─────────────────────────────
+// PARSING VOIX
+// ─────────────────────────────
 const MONTHS_FR = {
   janvier:1, février:2, fevrier:2, mars:3, avril:4, mai:5, juin:6,
   juillet:7, août:8, aout:8, septembre:9, octobre:10, novembre:11, décembre:12, decembre:12
@@ -735,52 +1191,49 @@ const MONTHS_FR = {
 
 function parseVoice(text) {
   const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-
-  // Try to extract a date: "mars 2026", "15 mars 2026", "03/2026", "2026-03", etc.
   let year = null, month = null, day = 1;
 
-  // Pattern: day? month_name year
   const m1 = t.match(/(\d{1,2})?\s*(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/);
-  if (m1) {
-    day = m1[1] ? parseInt(m1[1]) : 1;
-    month = MONTHS_FR[m1[2]];
-    year = parseInt(m1[3]);
-  }
+  if (m1) { day = m1[1] ? parseInt(m1[1]) : 1; month = MONTHS_FR[m1[2]]; year = parseInt(m1[3]); }
 
-  // Pattern: mm/yyyy or mm-yyyy
   if (!month) {
     const m2 = t.match(/(\d{1,2})[\/\-](\d{4})/);
     if (m2) { month = parseInt(m2[1]); year = parseInt(m2[2]); }
   }
 
-  // Extract name: everything before keywords
   let name = text;
-  const keywords = ['péremption','peremption','expire','périme','perime','date de','le','du'];
-  for (const kw of keywords) {
+  for (const kw of ['péremption','peremption','expire','périme','perime','date de']) {
     const idx = name.toLowerCase().indexOf(kw);
     if (idx > 2) { name = name.substring(0, idx).trim(); break; }
   }
-  name = name.replace(/\s+/g, ' ').trim();
-
-  // Capitalize first letter
+  name = name.replace(/\s+/g,' ').trim();
   if (name) name = name.charAt(0).toUpperCase() + name.slice(1);
-
   if (name) document.getElementById('medName').value = name;
 
   if (year && month) {
-    const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    document.getElementById('medDate').value = dateStr;
-    toast(`🎤 Détecté : ${name} — ${String(month).padStart(2,'0')}/${year}`);
+    document.getElementById('medDate').value = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    toast(`🎤 ${name} — ${String(month).padStart(2,'0')}/${year}`);
   } else if (name) {
-    toast(`🎤 Nom détecté : ${name} — Vérifiez la date`);
+    toast(`🎤 Nom : ${name} — Vérifiez la date`);
   }
 }
 
-// ─────────────────────────────────────
+// ─────────────────────────────
+// EXPORT PDF
+// ─────────────────────────────
+function exportPDF() {
+  // Met à jour le sous-titre d'impression
+  const label = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  document.getElementById('printSubtitle').textContent =
+    `Liste des médicaments périmant en ${label} — Imprimé le ${new Date().toLocaleDateString('fr-FR')}`;
+  setTimeout(() => window.print(), 100);
+}
+
+// ─────────────────────────────
 // INIT
-// ─────────────────────────────────────
+// ─────────────────────────────
 updateMonthDisplay();
-renderList();
+renderStock();
 </script>
 </body>
 </html>
