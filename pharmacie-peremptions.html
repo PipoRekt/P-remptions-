@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmExpiry — Gestion des péremptions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ede8;
+    --surface: #faf9f7;
+    --border: #d8d3ca;
+    --text: #1a1916;
+    --muted: #7a756c;
+    --accent: #2d6a4f;
+    --accent-light: #d8ead2;
+    --warn: #b5541a;
+    --warn-light: #fdebd8;
+    --danger: #8b1a1a;
+    --danger-light: #fde8e8;
+    --ok: #2d6a4f;
+    --ok-light: #d8ead2;
+    --ink: #1a1916;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .logo h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .logo p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat .n {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .stat .l {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .stat.warn .n { color: var(--warn); }
+  .stat.danger .n { color: var(--danger); }
+
+  /* DICTEE VOCALE */
+  .voice-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .voice-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .voice-btn {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+  }
+
+  .voice-btn:hover { transform: scale(1.05); }
+  .voice-btn.recording {
+    background: var(--danger);
+    animation: pulse 1s infinite;
+    box-shadow: 0 4px 20px rgba(139,26,26,0.4);
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 4px 20px rgba(139,26,26,0.4); }
+    50% { box-shadow: 0 4px 32px rgba(139,26,26,0.7); }
+  }
+
+  .voice-area {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .voice-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .transcript-box {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-height: 48px;
+    transition: border-color 0.2s;
+  }
+
+  .transcript-box.active { border-color: var(--accent); color: var(--text); }
+
+  .fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  input[type="text"], input[type="month"], input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .voice-hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* NAVIGATION MOIS */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .month-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+  }
+
+  .nav-btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .nav-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    color: var(--text);
+  }
+
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-today {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .btn-today:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* FILTRES */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .filter-btn.all.active { background: var(--ink); border-color: var(--ink); }
+  .filter-btn.soon.active { background: var(--warn); border-color: var(--warn); }
+  .filter-btn.expired.active { background: var(--danger); border-color: var(--danger); }
+
+  /* LISTE MEDICAMENTS */
+  .med-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .med-item {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: all 0.15s;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .med-item:hover { border-color: var(--accent); }
+  .med-item.expired { border-color: var(--danger); background: var(--danger-light); }
+  .med-item.soon { border-color: var(--warn); background: var(--warn-light); }
+  .med-item.ok { border-color: var(--ok); }
+
+  .med-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  .med-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .med-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-ok { background: var(--ok-light); color: var(--ok); }
+  .badge-soon { background: var(--warn-light); color: var(--warn); }
+  .badge-expired { background: var(--danger-light); color: var(--danger); }
+
+  .med-del {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .med-del:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 0.9rem; }
+
+  .search-input {
+    flex: 1;
+  }
+
+  .top-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 1000;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--accent); }
+  .toast.error { background: var(--danger); }
+
+  @media (max-width: 600px) {
+    .stats-bar { display: none; }
+    .fields-row { grid-template-columns: 1fr 1fr; }
+    .fields-row .btn { grid-column: 1/-1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Pharm<span>Expiry</span></h1>
+    <p>Gestion des dates de péremption</p>
+  </div>
+  <div class="stats-bar">
+    <div class="stat danger" id="stat-expired">
+      <div class="n">0</div>
+      <div class="l">Périmés</div>
+    </div>
+    <div class="stat warn" id="stat-soon">
+      <div class="n">0</div>
+      <div class="l">Bientôt (≤30j)</div>
+    </div>
+    <div class="stat" id="stat-total">
+      <div class="n">0</div>
+      <div class="l">Total</div>
+    </div>
+  </div>
+</header>
+
+<!-- AJOUT VOCAL -->
+<div class="voice-card">
+  <h2>🎤 Ajouter un médicament</h2>
+  <div class="voice-area">
+    <button class="voice-btn" id="voiceBtn" title="Dictée vocale">🎤</button>
+    <div class="voice-fields">
+      <div class="transcript-box" id="transcript">Appuyez sur 🎤 et dites par exemple : "Doliprane 1000 péremption mars 2026"</div>
+      <div class="fields-row">
+        <div>
+          <label>Médicament</label>
+          <input type="text" id="medName" placeholder="Nom du médicament">
+        </div>
+        <div>
+          <label>Date de péremption</label>
+          <input type="date" id="medDate">
+        </div>
+        <button class="btn btn-primary" onclick="addMed()">+ Ajouter</button>
+      </div>
+      <p class="voice-hint">💡 Dites : "Doliprane 500 péremption janvier 2027" ou "Amoxicilline expire le 15 mars 2026"</p>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION ET FILTRES -->
+<div class="month-nav">
+  <div class="nav-btns">
+    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <button class="btn-today" onclick="goToToday()">Aujourd'hui</button>
+    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="month-title" id="monthTitle"></div>
+  <input type="month" id="monthPicker" onchange="onMonthPick()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none;">
+</div>
+
+<div class="filters">
+  <button class="filter-btn all active" onclick="setFilter('all', this)">Tous</button>
+  <button class="filter-btn expired" onclick="setFilter('expired', this)">Périmés ce mois</button>
+  <button class="filter-btn soon" onclick="setFilter('soon', this)">Bientôt (≤30j)</button>
+  <button class="filter-btn" onclick="setFilter('future', this)">OK</button>
+</div>
+
+<div class="top-controls">
+  <input class="search-input" type="text" id="search" placeholder="🔍 Rechercher un médicament…" oninput="renderList()">
+</div>
+
+<div class="med-list" id="medList"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────
+// STORAGE
+// ─────────────────────────────────────
+let meds = JSON.parse(localStorage.getItem('pharmExpiry') || '[]');
+let currentMonth = new Date(); // date used as reference for month view
+let currentFilter = 'all';
+
+function save() {
+  localStorage.setItem('pharmExpiry', JSON.stringify(meds));
+}
+
+// ─────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────
+// MONTH NAVIGATION
+// ─────────────────────────────────────
+function changeMonth(d) {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + d, 1);
+  updateMonthDisplay();
+  renderList();
+}
+
+function goToToday() {
+  currentMonth = new Date();
+  updateMonthDisplay();
+  renderList();
+}
+
+function onMonthPick() {
+  const v = document.getElementById('monthPicker').value;
+  if (!v) return;
+  const [y, m] = v.split('-');
+  currentMonth = new Date(parseInt(y), parseInt(m) - 1, 1);
+  updateMonthDisplay();
+  renderList();
+}
+
+function updateMonthDisplay() {
+  const label = currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  document.getElementById('monthTitle').textContent = label;
+  const y = currentMonth.getFullYear();
+  const m = String(currentMonth.getMonth() + 1).padStart(2, '0');
+  document.getElementById('monthPicker').value = `${y}-${m}`;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ─────────────────────────────────────
+// STATUS
+// ─────────────────────────────────────
+function getStatus(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(dateStr);
+  const diff = Math.floor((exp - today) / 86400000);
+  if (diff < 0) return 'expired';
+  if (diff <= 30) return 'soon';
+  return 'ok';
+}
+
+function badgeLabel(status, dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(dateStr);
+  const diff = Math.floor((exp - today) / 86400000);
+  if (status === 'expired') return `Périmé (${Math.abs(diff)}j)`;
+  if (status === 'soon') return `Dans ${diff} jour${diff>1?'s':''}`;
+  return `OK — ${diff}j`;
+}
+
+// ─────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────
+function renderList() {
+  const y = currentMonth.getFullYear();
+  const m = currentMonth.getMonth();
+  const search = document.getElementById('search').value.toLowerCase();
+
+  // Filter by month: show meds expiring in selected month OR before (expired ones), based on filter
+  let list = meds.filter(med => {
+    const exp = new Date(med.date);
+    const status = getStatus(med.date);
+    const nameOk = med.name.toLowerCase().includes(search);
+    if (!nameOk) return false;
+
+    const expYear = exp.getFullYear();
+    const expMonth = exp.getMonth();
+
+    if (currentFilter === 'all') {
+      // show all that expire in or before this month
+      return (expYear < y) || (expYear === y && expMonth <= m);
+    }
+    if (currentFilter === 'expired') return status === 'expired' && expYear === y && expMonth === m;
+    if (currentFilter === 'soon') return status === 'soon';
+    if (currentFilter === 'future') return status === 'ok' && expYear === y && expMonth === m;
+    return true;
+  });
+
+  // Sort by date
+  list.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Stats (all meds, ignoring month filter)
+  const today = new Date(); today.setHours(0,0,0,0);
+  let expired = 0, soon = 0;
+  meds.forEach(med => {
+    const s = getStatus(med.date);
+    if (s === 'expired') expired++;
+    if (s === 'soon') soon++;
+  });
+  document.querySelector('#stat-expired .n').textContent = expired;
+  document.querySelector('#stat-soon .n').textContent = soon;
+  document.querySelector('#stat-total .n').textContent = meds.length;
+
+  const container = document.getElementById('medList');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">💊</div><p>Aucun médicament pour cette période.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(med => {
+    const status = getStatus(med.date);
+    const badge = badgeLabel(status, med.date);
+    const dateLabel = new Date(med.date).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+    return `
+      <div class="med-item ${status}">
+        <div class="med-name">💊 ${med.name}</div>
+        <div class="med-date">Exp. ${dateLabel}</div>
+        <span class="med-badge badge-${status}">${badge}</span>
+        <button class="med-del" onclick="deleteMed('${med.id}')" title="Supprimer">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────
+// ADD / DELETE
+// ─────────────────────────────────────
+function addMed() {
+  const name = document.getElementById('medName').value.trim();
+  const date = document.getElementById('medDate').value;
+  if (!name || !date) { toast('Remplissez le nom et la date.', 'error'); return; }
+  meds.push({ id: Date.now().toString(), name, date });
+  save();
+  document.getElementById('medName').value = '';
+  document.getElementById('medDate').value = '';
+  document.getElementById('transcript').textContent = 'Appuyez sur 🎤 et dites par exemple : "Doliprane 1000 péremption mars 2026"';
+  document.getElementById('transcript').classList.remove('active');
+  toast(`✓ ${name} ajouté`);
+  renderList();
+}
+
+function deleteMed(id) {
+  const med = meds.find(m => m.id === id);
+  meds = meds.filter(m => m.id !== id);
+  save();
+  toast(`🗑 ${med?.name || 'Médicament'} supprimé`);
+  renderList();
+}
+
+// ─────────────────────────────────────
+// DICTÉE VOCALE
+// ─────────────────────────────────────
+let recognition;
+let recording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'fr-FR';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    const text = (final || interim);
+    document.getElementById('transcript').textContent = text;
+    document.getElementById('transcript').classList.add('active');
+    if (final) parseVoice(final);
+  };
+
+  recognition.onend = () => {
+    recording = false;
+    document.getElementById('voiceBtn').textContent = '🎤';
+    document.getElementById('voiceBtn').classList.remove('recording');
+  };
+
+  recognition.onerror = () => {
+    recording = false;
+    document.getElementById('voiceBtn').textContent = '🎤';
+    document.getElementById('voiceBtn').classList.remove('recording');
+    toast('Erreur microphone', 'error');
+  };
+} else {
+  document.getElementById('voiceBtn').style.opacity = '0.4';
+  document.getElementById('voiceBtn').title = 'Dictée vocale non supportée par ce navigateur';
+}
+
+document.getElementById('voiceBtn').addEventListener('click', () => {
+  if (!recognition) { toast('Navigateur non compatible', 'error'); return; }
+  if (recording) {
+    recognition.stop();
+  } else {
+    recognition.start();
+    recording = true;
+    document.getElementById('voiceBtn').textContent = '⏹';
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('transcript').textContent = 'En écoute…';
+    document.getElementById('transcript').classList.add('active');
+  }
+});
+
+// ─────────────────────────────────────
+// PARSING VOIX → NOM + DATE
+// ─────────────────────────────────────
+const MONTHS_FR = {
+  janvier:1, février:2, fevrier:2, mars:3, avril:4, mai:5, juin:6,
+  juillet:7, août:8, aout:8, septembre:9, octobre:10, novembre:11, décembre:12, decembre:12
+};
+
+function parseVoice(text) {
+  const t = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+  // Try to extract a date: "mars 2026", "15 mars 2026", "03/2026", "2026-03", etc.
+  let year = null, month = null, day = 1;
+
+  // Pattern: day? month_name year
+  const m1 = t.match(/(\d{1,2})?\s*(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/);
+  if (m1) {
+    day = m1[1] ? parseInt(m1[1]) : 1;
+    month = MONTHS_FR[m1[2]];
+    year = parseInt(m1[3]);
+  }
+
+  // Pattern: mm/yyyy or mm-yyyy
+  if (!month) {
+    const m2 = t.match(/(\d{1,2})[\/\-](\d{4})/);
+    if (m2) { month = parseInt(m2[1]); year = parseInt(m2[2]); }
+  }
+
+  // Extract name: everything before keywords
+  let name = text;
+  const keywords = ['péremption','peremption','expire','périme','perime','date de','le','du'];
+  for (const kw of keywords) {
+    const idx = name.toLowerCase().indexOf(kw);
+    if (idx > 2) { name = name.substring(0, idx).trim(); break; }
+  }
+  name = name.replace(/\s+/g, ' ').trim();
+
+  // Capitalize first letter
+  if (name) name = name.charAt(0).toUpperCase() + name.slice(1);
+
+  if (name) document.getElementById('medName').value = name;
+
+  if (year && month) {
+    const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    document.getElementById('medDate').value = dateStr;
+    toast(`🎤 Détecté : ${name} — ${String(month).padStart(2,'0')}/${year}`);
+  } else if (name) {
+    toast(`🎤 Nom détecté : ${name} — Vérifiez la date`);
+  }
+}
+
+// ─────────────────────────────────────
+// INIT
+// ─────────────────────────────────────
+updateMonthDisplay();
+renderList();
+</script>
+</body>
+</html>
