@@ -1232,9 +1232,10 @@ function parseVoice(text) {
 
   const m1 = searchZone.match(reMonthYear);
   if (m1) {
-    day   = m1[1] ? parseInt(m1[1]) : 1;
     month = MONTHS_FR[m1[2]];
     year  = parseInt(m1[3]);
+    // Si jour précisé on le prend, sinon dernier jour du mois
+    day   = m1[1] ? parseInt(m1[1]) : new Date(year, month, 0).getDate();
     // Position dans t de ce match
     dateStartIndex = searchZoneOffset + searchZone.indexOf(m1[0]);
   }
@@ -1244,6 +1245,7 @@ function parseVoice(text) {
     if (m2) {
       month = parseInt(m2[1]);
       year  = parseInt(m2[2]);
+      day   = new Date(year, month, 0).getDate(); // dernier jour du mois
       dateStartIndex = searchZoneOffset + searchZone.indexOf(m2[0]);
     }
   }
