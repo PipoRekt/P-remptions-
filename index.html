@@ -594,12 +594,6 @@
   }
   .btn-import-json:hover { border-color: var(--text); color: var(--text); }
 
-  .btn-export-excel {
-    border: 1.5px solid #1d6f42;
-    background: #e8f5ee; color: #1d6f42;
-  }
-  .btn-export-excel:hover { background: #1d6f42; color: white; }
-
   .btn-detect-dupes {
     border: 1.5px solid var(--warn);
     background: var(--warn-light); color: var(--warn);
@@ -674,7 +668,6 @@
   <span class="backup-bar-label">💾 Sauvegarde</span>
   <button class="btn-backup btn-export-json" onclick="exportJSON()">⬇ JSON</button>
   <button class="btn-backup btn-import-json" onclick="document.getElementById('importFile').click()">⬆ JSON</button>
-  <button class="btn-backup btn-export-excel" onclick="exportExcel()">📊 Excel</button>
   <button class="btn-backup btn-detect-dupes" onclick="detectDuplicates()">🔍 Doublons</button>
   <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
 </div>
@@ -853,10 +846,22 @@ let meds = [];
 
 function loadData() {
   try {
-    const raw = localStorage.getItem('pharmExpiry_v2');
-    if (raw) meds = JSON.parse(raw);
-    // Migration depuis l'ancienne version sans lieu
-    meds = meds.map(m => ({ lieu: 'Reserve', qty: 1, ...m }));
+    // Essaie d'abord la clé actuelle
+    let raw = localStorage.getItem('pharmExpiry_v2');
+
+    // Migration depuis les anciennes clés si rien trouvé
+    if (!raw) raw = localStorage.getItem('pharmExpiry');
+    if (!raw) raw = localStorage.getItem('pharmExpiry_v1');
+
+    if (raw) {
+      meds = JSON.parse(raw);
+      // Migration : ajoute lieu par défaut si absent
+      meds = meds.map(m => ({ lieu: 'Reserve', ...m }));
+      // Sauvegarde sous la nouvelle clé
+      localStorage.setItem('pharmExpiry_v2', JSON.stringify(meds));
+    } else {
+      meds = [];
+    }
   } catch(e) { meds = []; }
 }
 
@@ -1548,52 +1553,6 @@ function importJSON(event) {
 
 
 
-function exportExcel() {
-  const MONTHS = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-
-  const groups = [
-    { name: 'Réserve/SDS/Bio/VSS', lieux: ['VSS', 'Reserve'] },
-    { name: 'Stups',               lieux: ['Stups'] },
-    { name: 'Malle DC',            lieux: ['MalleDC'] },
-    { name: 'Vaccin',              lieux: ['Vaccin'] },
-    { name: 'Tout le stock',       lieux: ['VSS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'] },
-  ];
-
-  function escCsv(val) {
-    const s = String(val ?? '');
-    return s.includes(';') || s.includes('"') || s.includes('\n')
-      ? '"' + s.replace(/"/g, '""') + '"' : s;
-  }
-
-  let csv = '\uFEFF'; // BOM UTF-8 pour Excel
-
-  groups.forEach((group, gi) => {
-    const medsGroup = [...meds]
-      .filter(m => group.lieux.includes(m.lieu))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-
-    if (gi > 0) csv += '\n\n';
-    csv += `=== ${group.name} ===\n`;
-
-    if (medsGroup.length === 0) { csv += 'Aucun médicament\n'; return; }
-
-    csv += ['Médicament', 'Lieu', ...MONTHS].map(escCsv).join(';') + '\n';
-
-    medsGroup.forEach(m => {
-      const d = new Date(m.date + 'T00:00:00');
-      csv += [m.name, LIEU_LABELS[m.lieu], ...MONTHS.map((_, i) => d.getMonth() === i ? 'X' : '')]
-        .map(escCsv).join(';') + '\n';
-    });
-  });
-
-  const b64 = btoa(unescape(encodeURIComponent(csv)));
-  const dataUri = 'data:text/csv;charset=utf-8;base64,' + b64;
-  const a = document.createElement('a');
-  a.href = dataUri;
-  a.download = `pharmacie-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  toast('📊 Export CSV — vérifiez vos téléchargements !');
-}
 
 
   window.addEventListener('load', () => {
