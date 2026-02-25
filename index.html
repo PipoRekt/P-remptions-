@@ -651,7 +651,6 @@
   .dupe-lieu { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--warn); }
   .dupe-date { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); flex:1; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1550,82 +1549,57 @@ function importJSON(event) {
   reader.readAsText(file);
 }
 
-function exportExcel() {
-  const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  const year = new Date().getFullYear();
 
-  // Groupes d'onglets
+
+function exportExcel() {
+  const MONTHS = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+
   const groups = [
     { name: 'Réserve/SDS/Bio/VSS', lieux: ['VSS', 'Reserve'] },
-    { name: 'Stups',    lieux: ['Stups'] },
-    { name: 'Malle DC', lieux: ['MalleDC'] },
-    { name: 'Vaccin',   lieux: ['Vaccin'] },
+    { name: 'Stups',               lieux: ['Stups'] },
+    { name: 'Malle DC',            lieux: ['MalleDC'] },
+    { name: 'Vaccin',              lieux: ['Vaccin'] },
+    { name: 'Tout le stock',       lieux: ['VSS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'] },
   ];
 
-  const wb = XLSX.utils.book_new();
+  function escCsv(val) {
+    const s = String(val ?? '');
+    return s.includes(';') || s.includes('"') || s.includes('\n')
+      ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
 
-  groups.forEach(group => {
-    const medsGroup = meds.filter(m => group.lieux.includes(m.lieu));
+  let csv = '\uFEFF'; // BOM UTF-8 pour Excel
 
-    if (medsGroup.length === 0) {
-      // Onglet vide avec juste l'en-tête
-      const ws = XLSX.utils.aoa_to_sheet([['Aucun médicament dans cette section']]);
-      XLSX.utils.book_append_sheet(wb, ws, group.name);
-      return;
-    }
+  groups.forEach((group, gi) => {
+    const medsGroup = [...meds]
+      .filter(m => group.lieux.includes(m.lieu))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
 
-    // Tri alphabétique
-    const sorted = [...medsGroup].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    if (gi > 0) csv += '\n\n';
+    csv += `=== ${group.name} ===\n`;
 
-    // En-tête : Médicament | Lieu | Jan | Fév | ... | Déc
-    const header = ['Médicament', 'Lieu', ...MONTHS];
-    const rows = [header];
+    if (medsGroup.length === 0) { csv += 'Aucun médicament\n'; return; }
 
-    sorted.forEach(m => {
+    csv += ['Médicament', 'Lieu', ...MONTHS].map(escCsv).join(';') + '\n';
+
+    medsGroup.forEach(m => {
       const d = new Date(m.date + 'T00:00:00');
-      const row = [
-        m.name,
-        LIEU_LABELS[m.lieu],
-        ...MONTHS.map((_, i) => d.getMonth() === i ? '✕' : ''),
-      ];
-      rows.push(row);
+      csv += [m.name, LIEU_LABELS[m.lieu], ...MONTHS.map((_, i) => d.getMonth() === i ? 'X' : '')]
+        .map(escCsv).join(';') + '\n';
     });
-
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-
-    // Largeurs colonnes
-    ws['!cols'] = [
-      { wch: 30 }, // Médicament
-      { wch: 18 }, // Lieu
-      ...MONTHS.map(() => ({ wch: 5 })), // Mois
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, group.name);
   });
 
-  // Onglet récap global toutes sections
-  const allSorted = [...meds].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-  const headerAll = ['Médicament', 'Lieu', ...MONTHS];
-  const rowsAll = [headerAll];
-  allSorted.forEach(m => {
-    const d = new Date(m.date + 'T00:00:00');
-    rowsAll.push([
-      m.name,
-      LIEU_LABELS[m.lieu],
-      ...MONTHS.map((_, i) => d.getMonth() === i ? '✕' : ''),
-    ]);
-  });
-  const wsAll = XLSX.utils.aoa_to_sheet(rowsAll);
-  wsAll['!cols'] = [{ wch: 30 }, { wch: 18 }, ...MONTHS.map(() => ({ wch: 5 }))];
-  XLSX.utils.book_append_sheet(wb, wsAll, 'Tout le stock');
-
-  const date = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `pharmacie-peremptions-${date}.xlsx`);
-  toast('📊 Export Excel généré !');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `pharmacie-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📊 Export CSV généré — ouvre dans Excel !');
 }
 
 
-if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/P-remptions-/service-worker.js')
       .catch(err => console.log('SW non enregistré :', err));
