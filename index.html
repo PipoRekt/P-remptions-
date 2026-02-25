@@ -28,6 +28,8 @@
     --ok-light: #d8ead2;
     --ink: #1a1916;
     --radius: 12px;
+    --vss: #1a4a7a;
+    --vss-light: #ddeaf7;
     --reserve: #2d6a4f;
     --reserve-light: #d8ead2;
     --stups: #8f3a3a;
@@ -85,6 +87,7 @@
     white-space: nowrap;
   }
 
+  .lieu-VSS      { background: var(--vss-light); color: var(--vss); }
   .lieu-Reserve  { background: var(--reserve-light); color: var(--reserve); }
   .lieu-Stups    { background: var(--stups-light); color: var(--stups); }
   .lieu-MalleDC  { background: var(--malledc-light); color: var(--malledc); }
@@ -234,6 +237,7 @@
     transition: all 0.2s; display: flex; align-items: center; gap: 8px;
   }
   .lieu-tab:hover { border-color: var(--text); color: var(--text); }
+  .lieu-tab.active-VSS     { background: var(--vss); border-color: var(--vss); color: white; }
   .lieu-tab.active-Reserve { background: var(--reserve); border-color: var(--reserve); color: white; }
   .lieu-tab.active-Stups   { background: var(--stups); border-color: var(--stups); color: white; }
   .lieu-tab.active-MalleDC { background: var(--malledc); border-color: var(--malledc); color: white; }
@@ -302,6 +306,7 @@
   .summary-card-title .dot {
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
+  .dot-VSS     { background: var(--vss); }
   .dot-Reserve { background: var(--reserve); }
   .dot-Stups   { background: var(--stups); }
   .dot-MalleDC { background: var(--malledc); }
@@ -593,63 +598,6 @@
     background: var(--surface); color: var(--muted);
   }
   .btn-import-json:hover { border-color: var(--text); color: var(--text); }
-
-  .btn-export-excel {
-    border: 1.5px solid #1d6f42;
-    background: #e8f5ee; color: #1d6f42;
-  }
-  .btn-export-excel:hover { background: #1d6f42; color: white; }
-
-  .btn-detect-dupes {
-    border: 1.5px solid var(--warn);
-    background: var(--warn-light); color: var(--warn);
-  }
-  .btn-detect-dupes:hover { background: var(--warn); color: white; }
-
-  /* ── MODAL GÉNÉRIQUE ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(26,25,22,0.5);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 500; padding: 20px;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 28px; width: 100%; max-width: 400px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    transform: translateY(16px); transition: transform 0.2s;
-  }
-  .modal-overlay.open .modal { transform: translateY(0); }
-  .modal h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 6px; }
-  .modal .med-info { font-size: 0.82rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
-  .modal-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-  .btn-cancel {
-    padding: 9px 18px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: transparent;
-    font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-    color: var(--muted); cursor: pointer; transition: all 0.15s;
-  }
-  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-
-  .dupe-group {
-    background: var(--warn-light); border: 1.5px solid var(--warn);
-    border-radius: 10px; padding: 12px 14px;
-  }
-  .dupe-group-title {
-    font-weight: 700; font-size: 0.88rem; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .dupe-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 0; border-top: 1px solid rgba(181,84,26,0.2);
-    font-size: 0.83rem; gap: 8px;
-  }
-  .dupe-item:first-of-type { border-top: none; }
-  .dupe-lieu { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--warn); }
-  .dupe-date { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); flex:1; }
 </style>
 </head>
 <body>
@@ -672,23 +620,9 @@
 <!-- ══ BARRE SAUVEGARDE ══ -->
 <div class="backup-bar">
   <span class="backup-bar-label">💾 Sauvegarde</span>
-  <button class="btn-backup btn-export-json" onclick="exportJSON()">⬇ JSON</button>
-  <button class="btn-backup btn-import-json" onclick="document.getElementById('importFile').click()">⬆ JSON</button>
-  <button class="btn-backup btn-export-excel" onclick="exportExcel()">📊 Excel</button>
-  <button class="btn-backup btn-detect-dupes" onclick="detectDuplicates()">🔍 Doublons</button>
+  <button class="btn-backup btn-export-json" onclick="exportJSON()">⬇ Exporter JSON</button>
+  <button class="btn-backup btn-import-json" onclick="document.getElementById('importFile').click()">⬆ Importer JSON</button>
   <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
-</div>
-
-<!-- ══ MODAL DOUBLONS ══ -->
-<div class="modal-overlay" id="dupesOverlay" onclick="if(event.target===this) closeDupesModal()">
-  <div class="modal" style="max-width:520px; max-height:80vh; display:flex; flex-direction:column;">
-    <h3>🔍 Doublons détectés</h3>
-    <div class="med-info" id="dupesInfo"></div>
-    <div id="dupesList" style="overflow-y:auto; flex:1; margin: 16px 0; display:flex; flex-direction:column; gap:10px;"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeDupesModal()">Fermer</button>
-    </div>
-  </div>
 </div>
 
 <!-- ══ ENCART AJOUT ══ -->
@@ -714,7 +648,8 @@
         <div>
           <label>Lieu</label>
           <select id="medLieu">
-            <option value="Reserve">Réserve/SDS/Bio/VSS</option>
+            <option value="Reserve">Réserve/SDS/Bio</option>
+            <option value="VSS">VSS</option>
             <option value="Stups">Stups</option>
             <option value="MalleDC">Malle DC</option>
             <option value="Vaccin">Vaccin</option>
@@ -769,8 +704,11 @@
     <button class="lieu-tab active-all" onclick="setLieuFilter('all', this)">
       Tous <span class="count" id="count-all">0</span>
     </button>
+    <button class="lieu-tab" onclick="setLieuFilter('VSS', this)">
+      VSS <span class="count" id="count-VSS">0</span>
+    </button>
     <button class="lieu-tab" onclick="setLieuFilter('Reserve', this)">
-      Réserve/SDS/Bio/VSS <span class="count" id="count-Reserve">0</span>
+      Réserve/SDS/Bio <span class="count" id="count-Reserve">0</span>
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('Stups', this)">
       Stups <span class="count" id="count-Stups">0</span>
@@ -829,7 +767,8 @@
   <!-- Filtre lieu dans vue mois aussi -->
   <div class="lieu-tabs" id="lieuTabsMonth">
     <button class="lieu-tab active-all" onclick="setLieuFilterMonth('all', this)">Tous</button>
-    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve/SDS/Bio/VSS</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('VSS', this)">VSS</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve/SDS/Bio</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Stups', this)">Stups</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('MalleDC', this)">Malle DC</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Vaccin', this)">Vaccin</button>
@@ -876,8 +815,8 @@ let lieuFilter        = 'all';
 let lieuFilterMonth   = 'all';
 let currentMonth      = new Date();
 
-const LIEUX = ['Reserve', 'Stups', 'MalleDC', 'Vaccin'];
-const LIEU_LABELS = { VSS: 'Réserve/SDS/Bio/VSS', Reserve: 'Réserve/SDS/Bio/VSS', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
+const LIEUX = ['VSS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'];
+const LIEU_LABELS = { VSS: 'VSS', Reserve: 'Réserve/SDS/Bio', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
 
 // ─────────────────────────────
 // TABS
@@ -1153,34 +1092,12 @@ function onMonthPick() {
 // ─────────────────────────────
 // ADD / DELETE
 // ─────────────────────────────
-function checkDuplicate(name, date, lieu) {
-  // Recherche un médicament avec nom similaire (insensible à la casse) + même date + même lieu
-  return meds.find(m =>
-    m.lieu === lieu &&
-    m.date === date &&
-    m.name.toLowerCase().trim() === name.toLowerCase().trim()
-  );
-}
-
 function addMed() {
   const name = document.getElementById('medName').value.trim();
   const date = document.getElementById('medDate').value;
   const lieu = document.getElementById('medLieu').value;
   if (!name || !date) { toast('Remplissez le nom et la date.', 'error'); return; }
-
-  const duplicate = checkDuplicate(name, date, lieu);
-  if (duplicate) {
-    const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    if (!confirm(`"${duplicate.name}" avec la même péremption (${dateStr}) existe déjà en ${LIEU_LABELS[lieu]}.\n\nS'agit-il du même médicament ?`)) {
-      // L'utilisateur dit non → on ajoute quand même
-    } else {
-      // L'utilisateur dit oui → on n'ajoute pas
-      toast(`⚠️ Doublon ignoré — ${name} déjà présent`, 'error');
-      return;
-    }
-  }
-
-  meds.push({ id: Date.now().toString(), name, date, lieu });
+  meds.push({ id: Date.now().toString(), name, date, lieu, qty: 1 });
   save();
   document.getElementById('medName').value = '';
   document.getElementById('medDate').value = '';
@@ -1192,11 +1109,9 @@ function addMed() {
 
 function deleteMed(id) {
   const med = meds.find(m => m.id === id);
-  if (!med) return;
-  if (!confirm(`Supprimer "${med.name}" ?`)) return;
   meds = meds.filter(m => m.id !== id);
   save();
-  toast(`🗑 ${med.name} supprimé`);
+  toast(`🗑 ${med?.name || 'Médicament'} supprimé`);
   if (currentTab === 'stock') renderStock(); else renderMonth();
 }
 
@@ -1420,21 +1335,9 @@ function parseVoice(text) {
 
 function addMedSilent(name, date) {
   const lieu = document.getElementById('medLieu').value;
-
-  const duplicate = checkDuplicate(name, date, lieu);
-  if (duplicate) {
-    const dateStr = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    if (confirm(`"${duplicate.name}" (${dateStr}) existe déjà en ${LIEU_LABELS[lieu]}.\n\nS'agit-il du même médicament ?`)) {
-      document.getElementById('transcript').textContent = `⚠️ Doublon ignoré — en écoute pour le suivant…`;
-      document.getElementById('medName').value = '';
-      document.getElementById('medDate').value = '';
-      toast(`⚠️ Doublon ignoré — ${name}`, 'error');
-      return;
-    }
-  }
-
   meds.push({ id: Date.now().toString(), name, date, lieu });
   save();
+  // Feedback visuel
   document.getElementById('transcript').textContent = `✓ "${name}" enregistré — en écoute pour le suivant…`;
   document.getElementById('medName').value = '';
   document.getElementById('medDate').value = '';
@@ -1443,75 +1346,8 @@ function addMedSilent(name, date) {
 }
 
 // ─────────────────────────────
-// DÉTECTION DOUBLONS
+// EXPORT / IMPORT JSON
 // ─────────────────────────────
-function detectDuplicates() {
-  // Groupe par lieu + nom (insensible casse) + date
-  const groups = {};
-  meds.forEach(m => {
-    const key = `${m.lieu}||${m.name.toLowerCase().trim()}||${m.date}`;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(m);
-  });
-
-  const dupes = Object.values(groups).filter(g => g.length > 1);
-
-  const overlay = document.getElementById('dupesOverlay');
-  const info    = document.getElementById('dupesInfo');
-  const list    = document.getElementById('dupesList');
-
-  if (dupes.length === 0) {
-    toast('✅ Aucun doublon trouvé dans ton stock !');
-    return;
-  }
-
-  info.textContent = `${dupes.length} groupe${dupes.length > 1 ? 's' : ''} de doublons trouvé${dupes.length > 1 ? 's' : ''} dans le même lieu.`;
-
-  list.innerHTML = dupes.map(group => {
-    const date = new Date(group[0].date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-    const items = group.map(m => `
-      <div class="dupe-item">
-        <span>${m.name}</span>
-        <span class="dupe-lieu">${LIEU_LABELS[m.lieu]}</span>
-        <span class="dupe-date">Exp. ${date}</span>
-        <button class="med-del" onclick="deleteMedFromDupes('${m.id}')"
-          style="width:26px;height:26px;border-radius:6px;border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-      </div>`).join('');
-    return `
-      <div class="dupe-group">
-        <div class="dupe-group-title">⚠️ ${group[0].name} — ${group.length} entrées</div>
-        ${items}
-      </div>`;
-  }).join('');
-
-  overlay.classList.add('open');
-}
-
-function deleteMedFromDupes(id) {
-  const med = meds.find(m => m.id === id);
-  if (!med) return;
-  if (!confirm(`Supprimer "${med.name}" ?`)) return;
-  meds = meds.filter(m => m.id !== id);
-  save();
-  toast(`🗑 ${med.name} supprimé`);
-  // Rafraîchit la liste des doublons
-  detectDuplicates();
-  // Si plus de doublons, ferme le modal
-  const groups = {};
-  meds.forEach(m => {
-    const key = `${m.lieu}||${m.name.toLowerCase().trim()}||${m.date}`;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(m);
-  });
-  if (!Object.values(groups).some(g => g.length > 1)) closeDupesModal();
-  if (currentTab === 'stock') renderStock(); else renderMonth();
-}
-
-function closeDupesModal() {
-  document.getElementById('dupesOverlay').classList.remove('open');
-}
-
-
 function exportJSON() {
   const data = JSON.stringify(meds, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
@@ -1549,57 +1385,10 @@ function importJSON(event) {
   reader.readAsText(file);
 }
 
-
-
-function exportExcel() {
-  const MONTHS = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-
-  const groups = [
-    { name: 'Réserve/SDS/Bio/VSS', lieux: ['VSS', 'Reserve'] },
-    { name: 'Stups',               lieux: ['Stups'] },
-    { name: 'Malle DC',            lieux: ['MalleDC'] },
-    { name: 'Vaccin',              lieux: ['Vaccin'] },
-    { name: 'Tout le stock',       lieux: ['VSS', 'Reserve', 'Stups', 'MalleDC', 'Vaccin'] },
-  ];
-
-  function escCsv(val) {
-    const s = String(val ?? '');
-    return s.includes(';') || s.includes('"') || s.includes('\n')
-      ? '"' + s.replace(/"/g, '""') + '"' : s;
-  }
-
-  let csv = '\uFEFF'; // BOM UTF-8 pour Excel
-
-  groups.forEach((group, gi) => {
-    const medsGroup = [...meds]
-      .filter(m => group.lieux.includes(m.lieu))
-      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-
-    if (gi > 0) csv += '\n\n';
-    csv += `=== ${group.name} ===\n`;
-
-    if (medsGroup.length === 0) { csv += 'Aucun médicament\n'; return; }
-
-    csv += ['Médicament', 'Lieu', ...MONTHS].map(escCsv).join(';') + '\n';
-
-    medsGroup.forEach(m => {
-      const d = new Date(m.date + 'T00:00:00');
-      csv += [m.name, LIEU_LABELS[m.lieu], ...MONTHS.map((_, i) => d.getMonth() === i ? 'X' : '')]
-        .map(escCsv).join(';') + '\n';
-    });
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `pharmacie-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('📊 Export CSV généré — ouvre dans Excel !');
-}
-
-
+// ─────────────────────────────
+// SERVICE WORKER (PWA)
+// ─────────────────────────────
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/P-remptions-/service-worker.js')
       .catch(err => console.log('SW non enregistré :', err));
