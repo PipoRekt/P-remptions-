@@ -36,6 +36,8 @@
     --malledc-light: #f7f0dd;
     --vaccin: #1a6b7a;
     --vaccin-light: #d8f0f4;
+    --vss: #1a6b8a;
+    --vss-light: #d0eaf5;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -89,6 +91,7 @@
   .lieu-Stups    { background: var(--stups-light); color: var(--stups); }
   .lieu-MalleDC  { background: var(--malledc-light); color: var(--malledc); }
   .lieu-Vaccin   { background: var(--vaccin-light); color: var(--vaccin); }
+  .lieu-VSS      { background: var(--vss-light); color: var(--vss); }
 
   /* ── ENCART AJOUT ── */
   .add-card {
@@ -238,6 +241,7 @@
   .lieu-tab.active-Stups   { background: var(--stups); border-color: var(--stups); color: white; }
   .lieu-tab.active-MalleDC { background: var(--malledc); border-color: var(--malledc); color: white; }
   .lieu-tab.active-Vaccin  { background: var(--vaccin); border-color: var(--vaccin); color: white; }
+  .lieu-tab.active-VSS     { background: var(--vss); border-color: var(--vss); color: white; }
   .lieu-tab.active-all     { background: var(--ink); border-color: var(--ink); color: white; }
 
   .lieu-tab .count {
@@ -306,6 +310,7 @@
   .dot-Stups   { background: var(--stups); }
   .dot-MalleDC { background: var(--malledc); }
   .dot-Vaccin  { background: var(--vaccin); }
+  .dot-VSS     { background: var(--vss); }
 
   .summary-card-stats {
     display: flex; gap: 10px; flex-wrap: wrap;
@@ -698,7 +703,8 @@
       <div class="fields-row">
         <div>
           <label>Médicament</label>
-          <input type="text" id="medName" placeholder="Nom du médicament">
+          <input type="text" id="medName" placeholder="Nom du médicament" autocomplete="off" list="medSuggestions">
+          <datalist id="medSuggestions"></datalist>
         </div>
         <div>
           <label>Date de péremption</label>
@@ -707,7 +713,8 @@
         <div>
           <label>Lieu</label>
           <select id="medLieu">
-            <option value="Reserve">Réserve/SDS/Bio/VSS</option>
+            <option value="Reserve">Réserve/SDS/Bio</option>
+            <option value="VSS">VSS</option>
             <option value="Stups">Stups</option>
             <option value="MalleDC">Malle DC</option>
             <option value="Vaccin">Vaccin</option>
@@ -763,7 +770,10 @@
       Tous <span class="count" id="count-all">0</span>
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('Reserve', this)">
-      Réserve/SDS/Bio/VSS <span class="count" id="count-Reserve">0</span>
+      Réserve/SDS/Bio <span class="count" id="count-Reserve">0</span>
+    </button>
+    <button class="lieu-tab" onclick="setLieuFilter('VSS', this)">
+      VSS <span class="count" id="count-VSS">0</span>
     </button>
     <button class="lieu-tab" onclick="setLieuFilter('Stups', this)">
       Stups <span class="count" id="count-Stups">0</span>
@@ -822,7 +832,8 @@
   <!-- Filtre lieu dans vue mois aussi -->
   <div class="lieu-tabs" id="lieuTabsMonth">
     <button class="lieu-tab active-all" onclick="setLieuFilterMonth('all', this)">Tous</button>
-    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve/SDS/Bio/VSS</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('Reserve', this)">Réserve/SDS/Bio</button>
+    <button class="lieu-tab" onclick="setLieuFilterMonth('VSS', this)">VSS</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Stups', this)">Stups</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('MalleDC', this)">Malle DC</button>
     <button class="lieu-tab" onclick="setLieuFilterMonth('Vaccin', this)">Vaccin</button>
@@ -866,11 +877,21 @@ function loadData() {
 }
 
 function save() {
-  try { localStorage.setItem('pharmExpiry_v2', JSON.stringify(meds)); }
+  try { localStorage.setItem('pharmExpiry_v2', JSON.stringify(meds)); updateSuggestions(); }
   catch(e) { toast('⚠️ Stockage non disponible', 'error'); }
 }
 
+function updateSuggestions() {
+  const dl = document.getElementById('medSuggestions');
+  if (!dl) return;
+  // Combine saved names + known names from JSON, deduplicate, sort
+  const savedNames = meds.map(m => m.name);
+  const all = [...new Set([...savedNames, ...KNOWN_NAMES])].sort((a, b) => a.localeCompare(b, 'fr'));
+  dl.innerHTML = all.map(n => `<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+}
+
 loadData();
+updateSuggestions();
 
 // ─────────────────────────────
 // STATE
@@ -881,8 +902,10 @@ let lieuFilter        = 'all';
 let lieuFilterMonth   = 'all';
 let currentMonth      = new Date();
 
-const LIEUX = ['Reserve', 'Stups', 'MalleDC', 'Vaccin'];
-const LIEU_LABELS = { VSS: 'Réserve/SDS/Bio/VSS', Reserve: 'Réserve/SDS/Bio/VSS', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
+const KNOWN_NAMES = ["Abaisse-langue", "Adaptateur de prise de sang pour cathéter", "Adaptateur prise de sang bleu", "Adrénaline", "Agrafeuse", "Agrafeuse cutanée", "Aiguille de mésothérapie", "Aiguille de prélèvement type Hélette", "Aiguille de prélèvement verte", "Aiguille de prélèvement à ailettes", "Aiguille de prélèvement à Hélette", "Aiguille IM verte", "Aiguille IV noir", "Aiguille PIO bleu", "Aiguille PIO jaune", "Aiguille PIO rose", "Aiguille prise de sang ponction franche", "Aiguille prise de sang verte", "Aiguille sous cutanée orange", "Aiguille sous-cutanée jaune", "Aiguilles intramusculaire", "Alcool", "Alcool modifié", "Alcool modifié péri", "Alèse absorbant", "AMOXICI2LINE", "Amoxicilline 500 mg", "AQUACEL de 2,5 cm par 48 cm", "Aquacell", "ASPEGIC 500 mg", "ASPEGIC 500 mg Peros", "ASPEGIC injectables", "ATROPINE", "Au stérile", "AUGMENTIN", "Augmentin", "Auto piqueur", "Bain de bouche à la chlorhexidine", "Banc de cohésif de contention 10 cm par 2,25 m", "Bande adhésif élastique TENSOPLAST 15 cm par 2,5 m péri", "Bande adhésive cohésive 7,5 cm par 4,5 m", "Bande adhésive élastique 10 cm par 2,5 m", "Bande adhésive élastique 15 cm par 2,5 m", "Bande adhésive élastique 6 cm par 2,5 m", "Bande adhésive élastique STRAPPAL4 cm par 10 m", "Bande adhésive élastique TENSOPLAST 10 cm par 2,5 m", "Bande adhésive élastique TENSOPLAST6 cm par 2,5 m", "Bande adhésive élastique TENSOPLAST6 cm par 2,5 m péri", "Bande cohésif 7,5 cm par 2m", "Bande cohésive", "Bande cohésive 7,5 cm par 2 m", "Bande cohésive 7,5 cm par 4,5 m", "Bande crêpe quatre par 10 cm", "Bande crêpes quatre par 7 cm", "Bande crêpes quatre par 7cm", "Bande d'extensible blanche de 7 cm par 4 m", "Bande de crêpes 4 m par 10 cm", "Bande de crêpes 4 m par 7 cm", "Bande de crêpes de 4 m par 10 cm", "Bande de crêpes de 4 m par 7 cm", "Bande de crêpes de 7 cm par 4 m", "Bande de crêpes quatre par 10 cm", "Bande de crêpes quatre par 7 cm", "Bande de fixation cohésive de 10 cm par 2 m", "Bande de fixation cohésive de 10 cm par 4 m", "Bande de gaz", "Bande de gaz OPRACLEAN de 2 cm par 5 m", "Bande extensible 4 m par 10 cm", "Bande extensible 4 m par 7 cm", "Bande extensible 7,5 cm par 4 m", "Bande extensible blanche de 10 cm par 4 m", "Bande extensible blanche de 4 m par 10 cm", "Bande élastique cohésive de 2,5 cm par 2 m", "Bande élastique cohésive de 7,5 cm par 4,5 m", "Bande élastique de contention de 3 m par 7 cm péri", "Bandelette glycémie", "Bandelette lactate", "Bandelette urinaire", "BAVU", "BAVU adulte", "BAVU pédiatrique", "BETAMETHASONE", "Bistouri", "Bonne crêpe quatre par 10 cm", "Bouchon Lovenox", "Bouchon rouge", "Bouchons rouge", "BRILIQUE", "Burn shield 10 par 10 cm", "Burn shield 20 par 20 cm", "BURNSHIELD 10 cm par 10 cm péri", "BURNSHIELD 20 cm par 20 cm", "BURNSHIELD facial", "Bâton ophtalmique", "Bétadine", "Bétadine alcoolique", "Bétadine alcoolique 10 ml", "Bétadine gel", "Calcitonine", "Canule bleu", "Canule grise", "Canule intra rectal", "Canule jaune", "Canule rouge", "Canule rouge 1er", "Capteur ETCO2 EMMA", "CEF TRIAXONE", "CEFTRIAXONE", "Ceinture pelvienne", "CERULYSE", "CETIRIZINE", "Cette ablation de suture", "Champ stérile 1er", "Champ stérile fenêtre", "Champ stériles", "Champ stériles non fenêtre", "Champ stériles non fenêtres", "Chant stériles fenêtre", "ChloraPrep", "Chlorhexidine", "Chlorhexidine bain de bouche", "Chlorure de sodium 100 ml", "Chlorure de sodium 250 ml", "CIPROFLOXACINE", "Circuit d'évacuation des gaz MEOPA", "Circuit d'évacuation MEOPA", "Circuit MEOPA adulte", "Circuit respirateur adulte", "Circuit respirateur pédiatrique", "Ciseaux stérile", "Ciseaux stériles", "CODOLIPRANE", "COLDPACK", "Colle pour suture cutanée", "Colle tissulaire", "Collecteur à urine", "Compeed", "Compresse non stérile", "Compresse non stériles", "Compresse stérile", "Compresse stériles", "Compresses non stériles", "CORDARONE", "CORTANCYL", "Couverture de réchauffement active", "Covid", "Crème solaire", "Cupule", "Curette", "Cyanokit", "CYANOKIT", "DACRYOSERUM", "DAKIN", "Dakin", "DIAZEPAM", "Diclofenac gel", "DIOMECTITE", "DIPHOTERINE", "Doigtier", "Doigtié", "Doliprane", "DOXYCYCLINE", "DUODERM de 6 cm par 11 cm", "Duoderme", "Eau oxygénée", "Eau oxygénée 10 ml", "Eau stérile", "ECONAZOLE poudre", "ELUDRIL bain de bouche", "ENGERIXB", "EOSINE", "ETHILON 2-0", "EXACYL", "Fil de suture 20 taille", "Fil de suture 60 taille", "Fil de suture deux–zéro", "Fil de suture quatre–zéro", "Fil de suture six–zéro", "File de suture 20 taille", "File de suture 30 taille", "File de suture cinq–zéro", "Fils de suture", "Filtre respirateur", "Filtre respirateur adulte 1er", "Filtre respirateur pédiatrique", "Flammazine", "Floroglucinol Spasfon", "Floroglucinole Spasfon", "FLUMAZENIL", "FLUORESCEINE", "G 30 %", "G 30 % injectables", "G10 % injectables", "Gant taille M", "Gant taille M péri", "Gant taille S", "Gants stérile 8,5 taille", "Gants stérile taille 7,5", "Gants stérile taille 8,5", "Gants stériles 6,5 taille", "Gants stériles taille 6,5", "Gants stériles taille 7,5", "Gants taille L", "Gants taille M", "Gants taille S", "Gants taille XL", "Gants Taille XL", "Gel anti adhésif", "GEL anti adhésif", "Gel FLECTOR", "Gel hydroalcoolique", "Gel hydroalcoolique grand modèle", "Gel hydroalcoolique petit modèle", "Gel l'hydroalcoolique", "Gel échographie flacon", "Gel échographie uni dose", "GELCAT Unidose", "GELOX", "Glucose 5 % 50 ml injectables", "HEPARINE injectables", "IPRATROPIUM adulte", "IPRATROPIUM pédiatrique", "IPRATROPUIM 0,5 mg", "ISOCARD", "ISOFUNDINE 500 ml", "Jelonet 10 cm par 10 cm", "Jelonet 10 par", "Jelonet 5 cm", "JELONET de 10 cm par 10 cm", "JELONET5 cm par 5 cm", "KETAMINE", "KETOPROFENE 100 mg", "Ketoprofene 100 mg", "KETOPROFENE injectable", "KETOPROFENE injectables", "Kit de pansement", "Kit de suture", "Kit pansement", "KT bleu", "KT gris", "KT jaune", "KT Rose", "KT rose", "KT Rose 1er", "KT vers", "KT vert", "Lame d'intubation mil1", "Lames de tondeuse", "LIDOCAINE", "LIDOCAINE injectables", "LIDOCAINE pulvérisation buccale", "Lidocaïne buccale", "Lingettes désinfectante", "Lingettes désinfectantes", "Lingettes Pampers", "LOVENOX 4000 UI", "Lovenox 4000 unités", "LOXAPAC", "Lunettes à oxygène adulte", "Lunettes à oxygène pédiatrique", "Mac4", "Mandrain souple d'intubation", "Masque chirurgical", "Masque FFP trois", "Masque haute concentration adulte", "Masque inhalateur pédiatrique", "Masque jaune MEOPA", "Masque MEOPA blanc", "Masque MEOPA gris", "Masque MEOPA jaune", "Masque MEOPA vert", "Masque nébulisateurs adulte", "Masque oxygène haute concentration taille adulte", "Masque pour nébulisation adulte", "Masque pour nébulisation pédiatrique", "Masque vert MEOPA", "Masque à oxygène adulte haute concentration", "Masque à oxygène haute concentration adulte", "Masque à oxygène haute concentration pédiatrique", "MEOPA", "MEPILEX 10 cm par 10cm", "Mepilex 10 cm par 25 cm", "MePilex border", "MESOCAINE", "METHYLPREDNISOLONE", "METOCLOPRAMIDE", "Metopilazine vogalène", "Micro cuvette HEMOCUE", "MIDAZOLAM 5 mg", "MIDAZOLAM 50 mg", "MMRVAX pro", "MORPHINE", "Mèche hémostatique cicatrisante COALGAN", "Mèche hémostatique cicatrisante de 40 cm", "Mèche nasale", "NALOXONE", "NIMENRIX", "NORADRENALINE", "OPSITE adulte", "OPSITE pédiatrique", "OPTILUBE", "Optiskin", "OPTISKIN 10 cm par 9cm", "OPTISKIN 10 par 9,20 cm", "OPTISKIN 5,3 par 8 cm", "OROZUMADOLE", "Oxygène", "OXYNORM orodispersible", "PANOTILE", "Pansement absorbant", "Pansement absorbant de 15 cm par 20 cm", "Pansement absorbant de 20 cm par 40 cm", "Pansement adhésif stérile 10 cm par 20 cm", "Pansement alevin", "Pansement ALL EVYN rectangulaire 10 cm par 10 cm péri", "Pansement ALLEVYN 10 cm par 20 cm", "Pansement ALLEVYN en étoile", "Pansement américain 20 cm par 40 cm", "Pansement compressif d'urgence", "Pansement hydro colloïdes 6 cm par 11 cm 1er", "Pansement lecomed", "Pansement LEUKOMED 5 cm par 7,2 cm 1er", "Pansement LEUKOMED de 5 cm par 7,2 cm péri", "Pansement MEPILEX 10 cm par 10 cm", "Pansement MEPILEX 10 cm par 25 cm", "Pansement MEPILEX 7,8 cm par 10 cm", "Pansement MEPILEX carré", "Pansement MEPILEX carré grand modèle", "Pansement MEPILEX oval", "Pansement MEPILEX ovale", "Pansement MEPILEX rectangulaire grand modèle", "Pansement Métalline", "Pansement OPTISKIN de 10 cm par 9 cm", "Pansement OPTISKIN de 5,3 cm par 8 cm", "Pansement plaie soufflante", "Pansement pour perfusion transparent", "Pansement pour plaie soufflante", "Pansement Sylaplaie", "Pansement SYLAPLAIE de 10 cm par 20 cm péri", "PANTOPRAZOLE 20 mg", "PANTORRAZOLE 20 mg", "Paracétamol injectable", "Patch DSA", "Patch DSA adulte", "Patch DSA pédiatrique", "Patch ECG", "Penthrox", "Perfuser", "Perfuseur", "PHLOROGLUCINOL", "PHLOROGLUCINOL injectables", "Pince de MAGILL 200 mm", "Pince de MAGILL 250 mm", "Pince de saturation pédiatrique", "Pince enlève agrafes", "Pince haute agrafes", "Pince hémostatique le riche", "Pince hémostatique Leriche", "Pince le riche", "Pince à dissection fine", "Pince à dissection plate", "PIROXICAM injectables", "PLAVIX", "Poche de froid", "Poche de recueil ACCUVAC", "Poche à urine", "POLARAMINE", "POLARAMINE injectables", "Pommade de vitamines A", "PREDNISONE 20 mg", "PRIMPERAN", "Prolongateur Octopus", "Préservatif", "PYOSTACINE", "QUANTIFERON", "QUICKCLOAT", "QUICKCLOT", "Raccord annelé", "RACECADOTRIL", "Racecadotril tiorfan 100 mg", "REPEVAX", "RIFADINE", "RIFAMPICINE", "Ringer lactate 500 ml", "RINGER LACTATE 500 ml", "RINGER lactates 500 ml injectables", "RISORDAN", "RIVOTRIL", "Robinet 3 voie", "Robinet trois voies", "Rouleaux de sparadrap", "ROVAMYCINE", "SALBUTAMOL 5 mg", "SALBUTAMOL inhaler", "SALBUTAMOL inhalé", "Savon doux", "Savon doux pour les mains", "Savon liquide 10 ml", "Savon main", "Seringue 10 ml", "Seringue 10 ml à", "Seringue 20 ml", "Seringue 3 ml", "Seringue 5 ml", "Seringue 50 ml", "Seringue intra nasale", "Seringue NACL pré rempli", "Set ablation de suture", "SET de suture", "SET pour pansement stérile", "SMECTA", "Sonde d'aspiration BUCO 26", "Sonde d'aspiration FR 06", "Sonde d'aspiration FR 10", "Sonde d'aspiration FR 18", "Sonde d'aspiration FR08", "Sonde d'aspiration FR12", "Sonde d'intubation taille 3,5", "Sonde d'intubation taille 4", "Sonde d'intubation taille 5,5", "Sonde d'intubation taille 6,0", "Sonde d'intubation taille cinq", "Sonde d'intubation taille quatre", "Sonde de température nasaux pharyngé", "Sonde de température rectal", "Sonde gastrique  FR14", "Sonde gastrique FR 06", "Sonde gastrique FR 18", "Sonde IOT 6.5", "Sonde IOT 7", "Sonde IOT 7.5", "Sonde IOT 8 taille", "Sonde IOT taille 2,5", "Sonde IOT taille 4,5", "Sonde IOT taille trois", "SPASFON injectables", "Spray anti moustique", "Spray surface Safe", "STERISTRIP", "Strap 15 cm par 2,5 m", "Strap 4 cm par 10 m", "Strap 6 cm par 2,5 m", "Stylo d'exsufflation", "Stylo démographique", "Stylo dérmographique", "Stérile strip", "Stériles strip", "Sérum physiologique 100 ml", "Sérum physiologique 100 ml injectables", "Sérum physiologique 20 ml", "Sérum physiologique 250 ml", "Sérum physiologique 250 ml injectables", "Sérum physiologique 5 ml", "Sérum physiologique 50 ml", "Sérum physiologique 500 ml", "Sérum physiologique 5ml", "Sérum physiologique injectables 500 ml", "Tegaderm", "TERBUTALINE 5 mg", "Test angine", "Test Covid", "Test de cancer du colo-rectal", "Test de dépistage colo-rectal", "Test de dépistage stupéfiant", "Test de grossesse", "TICOVAC", "TOXICARB", "TROCARD", "Trocard", "Trocart", "Tubes jaune", "Tubes laryngée taille 2", "Tubes violet", "Tubulure ACCUVAC", "Tuyau d'évacuation de gaz MEOPA", "TYPHIM", "VAQTA", "VARILIX", "Vaseline", "VAXIGRIP", "VENTOLINE", "Ventoline", "Éconazole poudre", "Éosine aqueuse"];
+
+const LIEUX = ['Reserve', 'VSS', 'Stups', 'MalleDC', 'Vaccin'];
+const LIEU_LABELS = { Reserve: 'Réserve/SDS/Bio', VSS: 'VSS', Stups: 'Stups', MalleDC: 'Malle DC', Vaccin: 'Vaccin' };
 
 // ─────────────────────────────
 // TABS
