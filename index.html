@@ -1521,13 +1521,20 @@ function closeDupesModal() {
 
 
 function exportJSON() {
-  const data = JSON.stringify(meds, null, 2);
-  const b64  = btoa(unescape(encodeURIComponent(data)));
-  const a    = document.createElement('a');
-  a.href     = 'data:application/json;charset=utf-8;base64,' + b64;
-  a.download = `pharmacie-backup-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  toast(`✓ Sauvegarde exportée (${meds.length} médicament${meds.length > 1 ? 's' : ''})`);
+    const data = JSON.stringify(meds, null, 2);
+    const filename = `pharmacie-backup-${new Date().toISOString().slice(0,10)}.json`;
+    const blob = new Blob([data], {type: 'application/json'});
+    const file = new File([blob], filename, {type: 'application/json'});
+    if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
+        navigator.share({files: [file], title: filename})
+        .catch(e => console.log('Partage annulé', e));
+    } else {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+    }
+    toast(`✓ Sauvegarde exportée (${meds.length} médicament${meds.length > 1 ? 's' : ''})`);
 }
 
 function importJSON(event) {
